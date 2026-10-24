@@ -265,3 +265,5 @@ fun BuscarScreen() {
 // Feature: Implementacion de vista ExplorarScreen y MockData
 
 // Feature: Integracion de DetalleLineaScreen e interacciones
+
+// Fix: Ajustes finales de estados de navegacion del MVP
