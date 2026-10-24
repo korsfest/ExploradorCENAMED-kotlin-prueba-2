@@ -1,24 +1,29 @@
 package com.example.explorador
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.explorador.data.MockData
 import com.example.explorador.model.LineaInvestigacion
 
@@ -26,24 +31,51 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    var estaLogueado by remember { mutableStateOf(false) }
-                    var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
+            MaterialTheme(
+                colorScheme = lightColorScheme(
+                    primary = Color(0xFF4A3780),
+                    background = Color(0xFFF8F9FA)
+                )
+            ) {
+                var pestañaActual by remember { mutableStateOf("explorar") }
+                var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
 
-                    // Sistema de navegación básico por estados
-                    if (!estaLogueado) {
-                        LoginScreen(onLoginSuccess = { estaLogueado = true })
-                    } else if (lineaSeleccionada == null) {
-                        ExploradorApp(onLineaClick = { linea -> lineaSeleccionada = linea })
-                    } else {
-                        DetalleLineaScreen(
-                            linea = lineaSeleccionada!!,
-                            onVolver = { lineaSeleccionada = null }
-                        )
+                Scaffold(
+                    bottomBar = {
+                        if (lineaSeleccionada == null) {
+                            NavigationBar(containerColor = Color.White) {
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Outlined.Explore, contentDescription = "Explorar") },
+                                    label = { Text("Explorar") },
+                                    selected = pestañaActual == "explorar",
+                                    onClick = { pestañaActual = "explorar" }
+                                )
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Outlined.Search, contentDescription = "Buscar") },
+                                    label = { Text("Buscar") },
+                                    selected = pestañaActual == "buscar",
+                                    onClick = { pestañaActual = "buscar" }
+                                )
+                            }
+                        }
+                    }
+                ) { padding ->
+                    Surface(
+                        modifier = Modifier.fillMaxSize().padding(padding),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        if (lineaSeleccionada == null) {
+                            if (pestañaActual == "explorar") {
+                                ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
+                            } else {
+                                BuscarScreen() // Vista base para "image_e36628.png"
+                            }
+                        } else {
+                            DetalleLineaScreen(
+                                linea = lineaSeleccionada!!,
+                                onVolver = { lineaSeleccionada = null }
+                            ) // Vista base para "image_e36647.png"
+                        }
                     }
                 }
             }
@@ -51,162 +83,94 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
-    var usuario by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var mostrarError by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "¡Bienvenido!",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Estás a punto de entrar al explorador de conocimiento de CENAMAD.",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = usuario,
-            onValueChange = {
-                usuario = it
-                mostrarError = false
-            },
-            label = { Text("Usuario (Ej: alumno)") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = mostrarError
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                mostrarError = false
-            },
-            label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            isError = mostrarError
-        )
-
-        if (mostrarError) {
-            Text(
-                text = "Por favor, completa todos los campos.",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .align(Alignment.Start)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = {
-                if (usuario.isNotBlank() && password.isNotBlank()) {
-                    onLoginSuccess()
-                } else {
-                    mostrarError = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text("Ingresar al Explorador", fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploradorApp(onLineaClick: (LineaInvestigacion) -> Unit) {
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("CENAMAD Explorador") }) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            // Banner explicativo para rellenar el espacio en blanco superior
+fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("CENAMAD Explorador", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("Explorador de conocimiento", fontSize = 12.sp, color = Color.Gray)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO */ }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        }
+
+        // Banner Oscuro
+        item {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF32224A)),
+                shape = RoundedCornerShape(24.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Líneas de Investigación",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text("CIENCIA, TECNOLOGÍA Y MADERA", color = Color.LightGray, fontSize = 10.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Selecciona una categoría para descubrir a sus investigadores, proyectos activos y publicaciones destacadas.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        "Conocimiento que\nconstruye futuro.",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 28.sp
                     )
-                }
-            }
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(MockData.lineas) { linea ->
-                    LineaCard(linea = linea, onClick = { onLineaClick(linea) })
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Conecta líneas, personas y hallazgos de la industria de la madera.",
+                        color = Color.LightGray,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }
-    }
-}
 
-@Composable
-fun LineaCard(linea: LineaInvestigacion, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        item {
             Text(
-                text = linea.titulo,
-                style = MaterialTheme.typography.titleMedium,
+                "Líneas de investigación",
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                fontSize = 18.sp,
+                modifier = Modifier.padding(top = 8.dp)
             )
+        }
+
+        items(MockData.lineas) { linea ->
+            Card(
+                modifier = Modifier.fillMaxWidth().clickable { onLineaClick(linea) },
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Build, // Placeholder para el icono de Figma
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp).padding(end = 12.dp),
+                        tint = Color(0xFF4A3780)
+                    )
+                    Column {
+                        Text(linea.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(
+                            "${linea.investigadores.size} investigadores · ${linea.proyectos.size} proyectos",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -214,62 +178,62 @@ fun LineaCard(linea: LineaInvestigacion, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit) {
-    var tabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Investigadores", "Proyectos", "Publicaciones")
-
-    Scaffold(
-        topBar = {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
             TopAppBar(
-                title = { Text(linea.titulo) },
+                title = { Text("Línea de investigación", fontSize = 16.sp) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
-                        Text("⬅️")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            TabRow(selectedTabIndex = tabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = tabIndex == index,
-                        onClick = { tabIndex = index },
-                        text = { Text(title, fontWeight = FontWeight.SemiBold) }
-                    )
-                }
+
+        item {
+            Text("CONSTRUCCIÓN Y HÁBITAT", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(linea.titulo, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp))
+            Text("Explora soluciones en madera para una edificación eficiente, segura y de menor impacto ambiental.", color = Color.DarkGray)
+        }
+
+        item {
+            Text("Esta línea en la muestra", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatCard(linea.investigadores.size.toString(), "Investigadores", Modifier.weight(1f))
+                StatCard(linea.proyectos.size.toString(), "Proyectos", Modifier.weight(1f))
+                StatCard(linea.publicaciones.size.toString(), "Publicaciones", Modifier.weight(1f))
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        }
+
+        item {
+            Text("Explora la línea", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+        }
+
+        // Navegación interna (Listas)
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                when (tabIndex) {
-                    0 -> items(linea.investigadores) { inv ->
-                        ItemCard(
-                            titulo = inv.nombre,
-                            subtitulo = inv.especialidad,
-                            etiqueta = "Investigador"
-                        )
-                    }
-                    1 -> items(linea.proyectos) { proy ->
-                        ItemCard(
-                            titulo = proy.titulo,
-                            subtitulo = "Año: ${proy.anio}",
-                            etiqueta = proy.estado
-                        )
-                    }
-                    2 -> items(linea.publicaciones) { pub ->
-                        ItemCard(
-                            titulo = pub.titulo,
-                            subtitulo = "",
-                            etiqueta = pub.tipo
-                        )
-                    }
+                Column {
+                    ListItem(
+                        headlineContent = { Text("Investigadores", fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text("Conoce a quienes investigan") },
+                        leadingContent = { Icon(Icons.Default.Person, contentDescription = null) },
+                        trailingContent = { Text(linea.investigadores.size.toString()) }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    ListItem(
+                        headlineContent = { Text("Proyectos", fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text("En ejecución y finalizados") },
+                        leadingContent = { Icon(Icons.Default.Build, contentDescription = null) },
+                        trailingContent = { Text(linea.proyectos.size.toString()) }
+                    )
                 }
             }
         }
@@ -277,30 +241,23 @@ fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit) {
 }
 
 @Composable
-fun ItemCard(titulo: String, subtitulo: String, etiqueta: String) {
+fun StatCard(numero: String, etiqueta: String, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = titulo, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            if (subtitulo.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = subtitulo, style = MaterialTheme.typography.bodyMedium)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Surface(
-                color = MaterialTheme.colorScheme.secondary,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(
-                    text = etiqueta,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
+            Text(numero, fontSize = 24.sp, color = Color(0xFF4A3780))
+            Text(etiqueta, fontSize = 10.sp, color = Color.Gray)
         }
     }
 }
+
+@Composable
+fun BuscarScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Pantalla de búsqueda en construcción", color = Color.Gray)
+    }
+}
+// UI: Estructura base y tema principal configurado
