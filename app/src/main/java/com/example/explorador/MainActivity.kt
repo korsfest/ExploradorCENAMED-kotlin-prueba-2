@@ -263,3 +263,5 @@ fun BuscarScreen() {
 // UI: Estructura base y tema principal configurado
 
 // Feature: Implementacion de vista ExplorarScreen y MockData
+
+// Feature: Integracion de DetalleLineaScreen e interacciones
