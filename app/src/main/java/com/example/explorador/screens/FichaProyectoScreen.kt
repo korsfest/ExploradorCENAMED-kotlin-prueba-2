@@ -27,7 +27,29 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> Unit) {
+fun FichaProyectoScreen(
+    nombreProyecto: String,
+    onVolver: () -> Unit,
+    onInvestigadorClick: (String) -> Unit
+) {
+    val esModular = nombreProyecto.contains("vivienda modular", ignoreCase = true)
+
+    val titulo = if (esModular) "Prototipo de vivienda modular" else "Análisis sísmico de uniones"
+    val subtitulo = if (esModular)
+        "Una propuesta para explorar la construcción de viviendas mediante módulos de madera."
+    else
+        "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT."
+    val estado = if (esModular) "En ejecución" else "Finalizado"
+    val anio = if (esModular) "Año 2025" else "Año 2024"
+
+    val investigadorNombre = if (esModular) "Dra. Ana Silva" else "Dr. Carlos Ruiz"
+    val investigadorIniciales = if (esModular) "AS" else "CR"
+    val investigadorEspecialidad = if (esModular) "Ingeniería Estructural" else "Arquitectura Sustentable"
+
+    val pubTipo = if (esModular) "Policy Brief · 2025" else "Artículo científico · 2024"
+    val pubTitulo = if (esModular) "Guía de diseño estructural" else "Resistencia al fuego en CLT"
+    val pubAutoria = if (esModular) "Dra. Ana Silva y Dr. Carlos Ruiz" else "Dr. Carlos Ruiz · Análisis sísmico de uniones"
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -48,8 +70,8 @@ fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> U
 
         item {
             Text("PROYECTO DE INVESTIGACIÓN", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text("Prototipo de vivienda modular", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp), lineHeight = 32.sp)
-            Text("Una propuesta para explorar la construcción de viviendas mediante módulos de madera.", color = Color.Gray, fontSize = 16.sp)
+            Text(titulo, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp), lineHeight = 32.sp)
+            Text(subtitulo, color = Color.Gray, fontSize = 16.sp)
         }
 
         item {
@@ -61,11 +83,11 @@ fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> U
                     Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF1E8E3E), modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("En ejecución", color = Color(0xFF1E8E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(estado, color = Color(0xFF1E8E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Text("Año 2025", color = Color.Gray, fontSize = 14.sp)
+                Text(anio, color = Color.Gray, fontSize = 14.sp)
             }
         }
 
@@ -97,7 +119,10 @@ fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> U
                         Text("¿Qué busca resolver?", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF32224A))
                     }
                     Text(
-                        "Evaluar una solución modular que integre diseño estructural, facilidad de montaje y uso eficiente de madera. La guía relacionada sintetiza criterios para su diseño.",
+                        if (esModular)
+                            "Evaluar una solución modular que integre diseño estructural, facilidad de montaje y uso eficiente de madera. La guía relacionada sintetiza criterios para su diseño."
+                        else
+                            "Analizar la respuesta estructural de uniones en construcciones de madera ante eventos sísmicos y validar su comportamiento al fuego.",
                         fontSize = 14.sp,
                         color = Color.DarkGray,
                         modifier = Modifier.padding(vertical = 12.dp)
@@ -110,10 +135,10 @@ fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> U
         item {
             Text("Investigadora responsable", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
             FichaInvestigadorCard(
-                iniciales = "AS",
-                especialidad = "Ingeniería Estructural",
-                nombre = "Dra. Ana Silva",
-                onClick = { onInvestigadorClick("Dra. Ana Silva") }
+                iniciales = investigadorIniciales,
+                especialidad = investigadorEspecialidad,
+                nombre = investigadorNombre,
+                onClick = { onInvestigadorClick(investigadorNombre) }
             )
         }
 
@@ -123,9 +148,9 @@ fun FichaProyectoScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> U
                 Text("1 publicación", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             FichaPublicacionCard(
-                tipo = "Policy Brief · 2025",
-                titulo = "Guía de diseño estructural",
-                autoria = "Dra. Ana Silva y Dr. Carlos Ruiz"
+                tipo = pubTipo,
+                titulo = pubTitulo,
+                autoria = pubAutoria
             )
         }
 

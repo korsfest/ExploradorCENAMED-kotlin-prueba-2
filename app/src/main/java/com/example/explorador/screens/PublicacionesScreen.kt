@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PublicacionesScreen(onVolver: () -> Unit) {
+fun PublicacionesScreen(onVolver: () -> Unit, onVerPublicacion: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -87,7 +87,8 @@ fun PublicacionesScreen(onVolver: () -> Unit) {
                 tipo = "Policy Brief · 2025",
                 titulo = "Guía de diseño estructural",
                 descripcion = "Criterios de diseño para sistemas modulares de madera, presentados de forma sintética.",
-                autoria = "Dra. Ana Silva y Dr. Carlos Ruiz"
+                autoria = "Dra. Ana Silva y Dr. Carlos Ruiz",
+                onClick = { onVerPublicacion("Guía de diseño estructural") }
             )
         }
 
@@ -96,7 +97,8 @@ fun PublicacionesScreen(onVolver: () -> Unit) {
                 tipo = "Artículo científico · 2024",
                 titulo = "Resistencia al fuego en CLT",
                 descripcion = "Revisión exploratoria del desempeño al fuego de paneles de madera contralaminada.",
-                autoria = "Dr. Carlos Ruiz · Análisis sísmico de uniones"
+                autoria = "Dr. Carlos Ruiz · Análisis sísmico de uniones",
+                onClick = { onVerPublicacion("Resistencia al fuego en CLT") }
             )
         }
 
@@ -120,9 +122,9 @@ fun PublicacionesScreen(onVolver: () -> Unit) {
 }
 
 @Composable
-fun PublicacionCard(tipo: String, titulo: String, descripcion: String, autoria: String) {
+fun PublicacionCard(tipo: String, titulo: String, descripcion: String, autoria: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),

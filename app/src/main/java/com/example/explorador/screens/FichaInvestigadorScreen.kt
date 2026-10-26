@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 fun FichaInvestigadorScreen(
     nombreInvestigador: String,
     onVolver: () -> Unit,
-    onProyectoClick: () -> Unit = {}
+    onProyectoClick: (String) -> Unit = {}
 ) {
     val esAnaSilva = nombreInvestigador.contains("Ana Silva", ignoreCase = true)
 
@@ -37,7 +37,9 @@ fun FichaInvestigadorScreen(
         "Diseño y evaluación de sistemas modulares de madera para vivienda."
     else
         "Investiga el desempeño sísmico y la seguridad de soluciones constructivas en madera."
-    val proyectoRelacionado = "Prototipo de vivienda modular"
+
+    val proyectoRelacionado = if (esAnaSilva) "Prototipo de vivienda modular" else "Análisis sísmico de uniones"
+    val proyectoDetalle = if (esAnaSilva) "2025 · En ejecución" else "2024 · Finalizado"
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -87,7 +89,7 @@ fun FichaInvestigadorScreen(
         item {
             Text("Proyecto relacionado", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp))
             Card(
-                modifier = Modifier.fillMaxWidth().clickable { onProyectoClick() },
+                modifier = Modifier.fillMaxWidth().clickable { onProyectoClick(proyectoRelacionado) },
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, Color(0xFFE5E5E5))
@@ -97,7 +99,7 @@ fun FichaInvestigadorScreen(
                         Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(20.dp))
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                        Text("2025 · En ejecución", fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                        Text(proyectoDetalle, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
                         Text(proyectoRelacionado, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                     Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)

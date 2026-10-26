@@ -32,6 +32,9 @@ class MainActivity : ComponentActivity() {
                 var viendoPublicaciones by remember { mutableStateOf(false) }
                 var investigadorSeleccionado by remember { mutableStateOf<String?>(null) }
                 var viendoFichaProyecto by remember { mutableStateOf(false) }
+                var proyectoSeleccionado by remember { mutableStateOf("Prototipo de vivienda modular") }
+                var viendoFichaPublicacion by remember { mutableStateOf(false) }
+                var publicacionSeleccionada by remember { mutableStateOf("Guía de diseño estructural") }
 
                 Scaffold(
                     bottomBar = {
@@ -62,6 +65,7 @@ class MainActivity : ComponentActivity() {
                             viendoProyectos = false
                             viendoPublicaciones = false
                             viendoFichaProyecto = false
+                            viendoFichaPublicacion = false
                             investigadorSeleccionado = null
                             if (pestañaActual == "explorar") {
                                 ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
@@ -69,8 +73,20 @@ class MainActivity : ComponentActivity() {
                                 BuscarScreen()
                             }
                         } else {
-                            if (viendoFichaProyecto) {
+                            if (viendoFichaPublicacion) {
+                                FichaPublicacionScreen(
+                                    nombrePublicacion = publicacionSeleccionada,
+                                    onVolver = { viendoFichaPublicacion = false },
+                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre },
+                                    onProyectoClick = { proj ->
+                                        proyectoSeleccionado = proj
+                                        viendoFichaPublicacion = false
+                                        viendoFichaProyecto = true
+                                    }
+                                )
+                            } else if (viendoFichaProyecto) {
                                 FichaProyectoScreen(
+                                    nombreProyecto = proyectoSeleccionado,
                                     onVolver = { viendoFichaProyecto = false },
                                     onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
                                 )
@@ -78,7 +94,10 @@ class MainActivity : ComponentActivity() {
                                 FichaInvestigadorScreen(
                                     nombreInvestigador = investigadorSeleccionado!!,
                                     onVolver = { investigadorSeleccionado = null },
-                                    onProyectoClick = { viendoFichaProyecto = true }
+                                    onProyectoClick = { proj ->
+                                        proyectoSeleccionado = proj
+                                        viendoFichaProyecto = true
+                                    }
                                 )
                             } else if (viendoInvestigadores) {
                                 InvestigadoresScreen(
@@ -88,10 +107,19 @@ class MainActivity : ComponentActivity() {
                             } else if (viendoProyectos) {
                                 ProyectosScreen(
                                     onVolver = { viendoProyectos = false },
-                                    onVerProyecto = { viendoFichaProyecto = true }
+                                    onVerProyecto = { proj ->
+                                        proyectoSeleccionado = proj
+                                        viendoFichaProyecto = true
+                                    }
                                 )
                             } else if (viendoPublicaciones) {
-                                PublicacionesScreen(onVolver = { viendoPublicaciones = false })
+                                PublicacionesScreen(
+                                    onVolver = { viendoPublicaciones = false },
+                                    onVerPublicacion = { pub ->
+                                        publicacionSeleccionada = pub
+                                        viendoFichaPublicacion = true
+                                    }
+                                )
                             } else {
                                 DetalleLineaScreen(
                                     linea = lineaSeleccionada!!,
