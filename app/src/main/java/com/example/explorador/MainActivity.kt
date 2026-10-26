@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                 var viendoPublicaciones by remember { mutableStateOf(false) }
                 var investigadorSeleccionado by remember { mutableStateOf<String?>(null) }
                 var viendoFichaProyecto by remember { mutableStateOf(false) }
+                var proyectoSeleccionado by remember { mutableStateOf("Prototipo de vivienda modular") }
 
                 Scaffold(
                     bottomBar = {
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
                         } else {
                             if (viendoFichaProyecto) {
                                 FichaProyectoScreen(
+                                    nombreProyecto = proyectoSeleccionado,
                                     onVolver = { viendoFichaProyecto = false },
                                     onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
                                 )
@@ -78,7 +80,10 @@ class MainActivity : ComponentActivity() {
                                 FichaInvestigadorScreen(
                                     nombreInvestigador = investigadorSeleccionado!!,
                                     onVolver = { investigadorSeleccionado = null },
-                                    onProyectoClick = { viendoFichaProyecto = true }
+                                    onProyectoClick = { proj ->
+                                        proyectoSeleccionado = proj
+                                        viendoFichaProyecto = true
+                                    }
                                 )
                             } else if (viendoInvestigadores) {
                                 InvestigadoresScreen(
@@ -88,7 +93,10 @@ class MainActivity : ComponentActivity() {
                             } else if (viendoProyectos) {
                                 ProyectosScreen(
                                     onVolver = { viendoProyectos = false },
-                                    onVerProyecto = { viendoFichaProyecto = true }
+                                    onVerProyecto = { proj ->
+                                        proyectoSeleccionado = proj
+                                        viendoFichaProyecto = true
+                                    }
                                 )
                             } else if (viendoPublicaciones) {
                                 PublicacionesScreen(onVolver = { viendoPublicaciones = false })

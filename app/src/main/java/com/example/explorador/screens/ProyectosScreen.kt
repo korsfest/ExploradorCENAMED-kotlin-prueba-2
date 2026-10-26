@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProyectosScreen(onVolver: () -> Unit, onVerProyecto: () -> Unit) {
+fun ProyectosScreen(onVolver: () -> Unit, onVerProyecto: (String) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             TopAppBar(
@@ -64,8 +64,24 @@ fun ProyectosScreen(onVolver: () -> Unit, onVerProyecto: () -> Unit) {
                 Text("Más recientes", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
         }
-        item { ProyectoCard("2025 · En ejecución", "Prototipo de vivienda modular", "Propuesta de módulos habitacionales en madera con foco en montaje y desempeño estructural.", "Dra. Ana Silva · 1 publicación relacionada", onClick = onVerProyecto) }
-        item { ProyectoCard("2024 · Finalizado", "Análisis sísmico de uniones", "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT.", "Dr. Carlos Ruiz · 1 publicación relacionada") }
+        item {
+            ProyectoCard(
+                estado = "2025 · En ejecución",
+                titulo = "Prototipo de vivienda modular",
+                descripcion = "Propuesta de módulos habitacionales en madera con foco en montaje y desempeño estructural.",
+                responsable = "Dra. Ana Silva · 1 publicación relacionada",
+                onClick = { onVerProyecto("Prototipo de vivienda modular") }
+            )
+        }
+        item {
+            ProyectoCard(
+                estado = "2024 · Finalizado",
+                titulo = "Análisis sísmico de uniones",
+                descripcion = "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT.",
+                responsable = "Dr. Carlos Ruiz · 1 publicación relacionada",
+                onClick = { onVerProyecto("Análisis sísmico de uniones") }
+            )
+        }
         item {
             Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
