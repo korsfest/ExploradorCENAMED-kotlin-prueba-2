@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
                 var viendoInvestigadores by remember { mutableStateOf(false) }
                 var viendoProyectos by remember { mutableStateOf(false) }
                 var viendoPublicaciones by remember { mutableStateOf(false) }
+                var investigadorSeleccionado by remember { mutableStateOf<String?>(null) }
 
                 Scaffold(
                     bottomBar = {
@@ -59,14 +60,23 @@ class MainActivity : ComponentActivity() {
                             viendoInvestigadores = false
                             viendoProyectos = false
                             viendoPublicaciones = false
+                            investigadorSeleccionado = null
                             if (pestañaActual == "explorar") {
                                 ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
                             } else {
                                 BuscarScreen()
                             }
                         } else {
-                            if (viendoInvestigadores) {
-                                InvestigadoresScreen(onVolver = { viendoInvestigadores = false })
+                            if (investigadorSeleccionado != null) {
+                                FichaInvestigadorScreen(
+                                    nombreInvestigador = investigadorSeleccionado!!,
+                                    onVolver = { investigadorSeleccionado = null }
+                                )
+                            } else if (viendoInvestigadores) {
+                                InvestigadoresScreen(
+                                    onVolver = { viendoInvestigadores = false },
+                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
+                                )
                             } else if (viendoProyectos) {
                                 ProyectosScreen(onVolver = { viendoProyectos = false })
                             } else if (viendoPublicaciones) {

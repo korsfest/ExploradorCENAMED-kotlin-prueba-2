@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvestigadoresScreen(onVolver: () -> Unit) {
+fun InvestigadoresScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             TopAppBar(
@@ -62,8 +62,8 @@ fun InvestigadoresScreen(onVolver: () -> Unit) {
                 Text("A–Z", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
         }
-        item { InvestigadorCard("AS", "Ingeniería Estructural", "Dra. Ana Silva", "Diseño y evaluación de sistemas modulares de madera para vivienda.", "1 proyecto · 1 publicación relacionada") }
-        item { InvestigadorCard("CR", "Arquitectura Sustentable", "Dr. Carlos Ruiz", "Desempeño sísmico y seguridad de soluciones constructivas en madera.", "1 proyecto · 2 publicaciones relacionadas") }
+        item { InvestigadorCard("AS", "Ingeniería Estructural", "Dra. Ana Silva", "Diseño y evaluación de sistemas modulares de madera para vivienda.", "1 proyecto · 1 publicación relacionada", onClick = { onInvestigadorClick("Ana Silva") }) }
+        item { InvestigadorCard("CR", "Arquitectura Sustentable", "Dr. Carlos Ruiz", "Desempeño sísmico y seguridad de soluciones constructivas en madera.", "1 proyecto · 2 publicaciones relacionadas", onClick = { onInvestigadorClick("Carlos Ruiz") }) }
         item {
             Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -83,9 +83,9 @@ fun InvestigadoresScreen(onVolver: () -> Unit) {
 }
 
 @Composable
-fun InvestigadorCard(iniciales: String, especialidad: String, nombre: String, descripcion: String, estadisticas: String) {
+fun InvestigadorCard(iniciales: String, especialidad: String, nombre: String, descripcion: String, estadisticas: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),
