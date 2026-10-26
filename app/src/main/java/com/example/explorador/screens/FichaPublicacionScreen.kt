@@ -9,9 +9,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
@@ -29,20 +29,101 @@ fun FichaPublicacionScreen(
     nombrePublicacion: String,
     onVolver: () -> Unit,
     onInvestigadorClick: (String) -> Unit,
-    onProyectoClick: (String) -> Unit
+    onProyectoClick: (String) -> Unit,
+    onInicioClick: () -> Unit
 ) {
     val esGuia = nombrePublicacion.contains("Guía de diseño", ignoreCase = true)
+    val esBiopolimeros = nombrePublicacion.contains("Caracterización de biopolímeros", ignoreCase = true)
+    val esNanocompuestos = nombrePublicacion.contains("Nanocompuestos de celulosa", ignoreCase = true)
+    val esImpactoAmbiental = nombrePublicacion.contains("Impacto ambiental", ignoreCase = true)
+    val esTendencias = nombrePublicacion.contains("Tendencias del mercado", ignoreCase = true)
+    val esDesarrolloSostenible = nombrePublicacion.contains("Desarrollo Local Sostenible", ignoreCase = true)
+    val esAutomatizacion = nombrePublicacion.contains("Automatización en aserraderos", ignoreCase = true)
+    val esManufactura = nombrePublicacion.contains("Manufactura y Robótica Avanzada", ignoreCase = true)
 
-    val tipo = if (esGuia) "POLICY BRIEF" else "ARTÍCULO CIENTÍFICO"
-    val anio = if (esGuia) "2025" else "2024"
-    val titulo = if (esGuia) "Guía de diseño estructural" else "Resistencia al fuego en CLT"
-    val subtitulo = if (esGuia) "Diseño de sistemas modulares en madera" else "Análisis sísmico de uniones"
-    val resumen = if (esGuia)
-        "Síntesis de criterios para diseñar módulos habitacionales de madera. Aborda organización estructural, uniones y montaje, y conecta estas decisiones con el prototipo de vivienda modular."
-    else
-        "Revisión exploratoria del desempeño al fuego de paneles de madera contralaminada y su comportamiento en uniones estructurales."
-    val proyectoRelacionado = if (esGuia) "Prototipo de vivienda modular" else "Análisis sísmico de uniones"
-    val proyectoEstado = if (esGuia) "2025 · En ejecución" else "2024 · Finalizado"
+    val tipo = if (esTendencias || esGuia || esDesarrolloSostenible || esAutomatizacion || esManufactura) "POLICY BRIEF" else "ARTÍCULO CIENTÍFICO"
+    val anio = "2025"
+
+    val titulo = when {
+        esGuia -> "Guía de diseño estructural"
+        esBiopolimeros -> "Caracterización de biopolímeros"
+        esNanocompuestos -> "Nanocompuestos de celulosa"
+        esImpactoAmbiental -> "Impacto ambiental del CLT"
+        esTendencias -> "Tendencias del mercado maderero"
+        esDesarrolloSostenible -> "Desarrollo Local Sostenible"
+        esAutomatizacion -> "Automatización en aserraderos"
+        esManufactura -> "Manufactura y Robótica Avanzada"
+        else -> "Resistencia al fuego en CLT"
+    }
+
+    val subtitulo = when {
+        esGuia -> "Diseño de sistemas modulares en madera"
+        esBiopolimeros -> "Biopolímeros forestales avanzados"
+        esNanocompuestos -> "Nanocompuestos estructurales"
+        esImpactoAmbiental -> "Evaluación de Ciclo de Vida en CLT"
+        esTendencias -> "Mercados de Exportación Maderera"
+        esDesarrolloSostenible -> "Desarrollo Local y Territorio"
+        esAutomatizacion -> "Robótica en Aserraderos"
+        esManufactura -> "Celdas Robotizadas de Producción"
+        else -> "Análisis sísmico de uniones"
+    }
+
+    val resumen = when {
+        esGuia -> "Síntesis de criterios para diseñar módulos habitacionales de madera. Aborda organización estructural, uniones y montaje, y conecta estas decisiones con el prototipo de vivienda modular."
+        esBiopolimeros -> "Estudio analítico sobre las propiedades mecánicas y estructurales de nuevos biopolímeros obtenidos a partir de componentes de la biomasa forestal."
+        esNanocompuestos -> "Investigación sobre el refuerzo de matrices poliméricas con celulosa nanofibrilada para obtener materiales de alta resistencia."
+        esImpactoAmbiental -> "Análisis detallado de la huella de carbono y los beneficios ecológicos del uso de madera contralaminada en proyectos de construcción."
+        esTendencias -> "Informe sintético sobre la evolución de la demanda internacional y los principales desafíos comerciales y logísticos para la madera nacional."
+        esDesarrolloSostenible -> "Análisis sobre el impacto socioeconómico y las directrices estratégicas para fomentar el bienestar en comunidades forestales locales."
+        esAutomatizacion -> "Directrices para integrar celdas robotizadas y control de alta precisión en líneas de aserrío y transformación industrial."
+        esManufactura -> "Lineamientos para la optimización de procesos mediante celdas robotizadas colaborativas orientadas a la industria de la madera."
+        else -> "Revisión exploratoria del desempeño al fuego de paneles de madera contralaminada y su comportamiento en uniones estructurales."
+    }
+
+    val proyectoRelacionado = when {
+        esGuia -> "Prototipo de vivienda modular"
+        esBiopolimeros -> "Biopolímeros forestales avanzados"
+        esNanocompuestos -> "Nanocompuestos estructurales"
+        esImpactoAmbiental -> "Evaluación de Ciclo de Vida en CLT"
+        esTendencias -> "Mercados de Exportación Maderera"
+        esDesarrolloSostenible -> "Desarrollo Local y Territorio"
+        esAutomatizacion -> "Robótica en Aserraderos"
+        esManufactura -> "Celdas Robotizadas de Producción"
+        else -> "Análisis sísmico de uniones"
+    }
+
+    val proyectoEstado = "2025 · En ejecución"
+
+    val autorNombre = when {
+        esBiopolimeros -> "Dr. Luis Morales"
+        esNanocompuestos -> "Dra. Sofía Valdés"
+        esImpactoAmbiental -> "Dr. Mateo Rojas"
+        esTendencias -> "Dr. Gabriel Fuentes"
+        esDesarrolloSostenible -> "Dra. Marcela Parra"
+        esAutomatizacion -> "Dr. Ignacio Becker"
+        esManufactura -> "Dra. Valentina Soto"
+        else -> "Dra. Ana Silva"
+    }
+    val autorIniciales = when {
+        esBiopolimeros -> "LM"
+        esNanocompuestos -> "SV"
+        esImpactoAmbiental -> "MR"
+        esTendencias -> "GF"
+        esDesarrolloSostenible -> "MP"
+        esAutomatizacion -> "IB"
+        esManufactura -> "VS"
+        else -> "AS"
+    }
+    val autorEsp = when {
+        esBiopolimeros -> "Química de Materiales"
+        esNanocompuestos -> "Nanotecnología de la Madera"
+        esImpactoAmbiental -> "Gestión Ambiental"
+        esTendencias -> "Economía Forestal"
+        esDesarrolloSostenible -> "Sostenibilidad Territorial"
+        esAutomatizacion -> "Automatización Industrial"
+        esManufactura -> "Manufactura Avanzada"
+        else -> "Ingeniería Estructural"
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -99,25 +180,16 @@ fun FichaPublicacionScreen(
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                 Text("Autoría", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("2 autores", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("1 autor", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
 
         item {
-            FichaInvestigadorCard(
-                iniciales = "AS",
-                especialidad = "Ingeniería Estructural",
-                nombre = "Dra. Ana Silva",
-                onClick = { onInvestigadorClick("Dra. Ana Silva") }
-            )
-        }
-
-        item {
-            FichaInvestigadorCard(
-                iniciales = "CR",
-                especialidad = "Arquitectura Sustentable",
-                nombre = "Dr. Carlos Ruiz",
-                onClick = { onInvestigadorClick("Dr. Carlos Ruiz") }
+            AutorCard(
+                iniciales = autorIniciales,
+                especialidad = autorEsp,
+                nombre = autorNombre,
+                onClick = { onInvestigadorClick(autorNombre) }
             )
         }
 
@@ -131,28 +203,28 @@ fun FichaPublicacionScreen(
             ) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(40.dp).background(Color(0xFFF3EDF7), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Book, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(20.dp))
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(proyectoEstado, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
                         Text(proyectoRelacionado, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
                 }
             }
         }
 
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable { onInicioClick() },
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Home, contentDescription = null, tint = Color(0xFF4A3780))
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Construcción Sustentable en Madera", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
+                    Text("Volver al inicio", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
                 }
             }
         }
@@ -163,6 +235,31 @@ fun FichaPublicacionScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Muestra académica · datos e indicadores sintéticos", fontSize = 12.sp, color = Color.Gray)
             }
+        }
+    }
+}
+
+@Composable
+fun AutorCard(iniciales: String, especialidad: String, nombre: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.size(48.dp).background(Color(0xFFEADDFF), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(iniciales, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+            }
+            Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                Text(especialidad, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
         }
     }
 }

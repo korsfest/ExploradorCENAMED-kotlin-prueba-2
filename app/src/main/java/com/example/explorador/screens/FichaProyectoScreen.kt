@@ -11,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.Info
@@ -30,25 +30,116 @@ import androidx.compose.ui.unit.sp
 fun FichaProyectoScreen(
     nombreProyecto: String,
     onVolver: () -> Unit,
-    onInvestigadorClick: (String) -> Unit
+    onInvestigadorClick: (String) -> Unit,
+    onPublicacionClick: (String) -> Unit
 ) {
     val esModular = nombreProyecto.contains("vivienda modular", ignoreCase = true)
+    val esBiopolimeros = nombreProyecto.contains("Biopolímeros", ignoreCase = true)
+    val esNanocompuestos = nombreProyecto.contains("Nanocompuestos", ignoreCase = true)
+    val esCicloVida = nombreProyecto.contains("Ciclo de Vida", ignoreCase = true)
+    val esMercados = nombreProyecto.contains("Mercados de Exportación", ignoreCase = true)
+    val esDesarrolloLocal = nombreProyecto.contains("Desarrollo Local", ignoreCase = true)
+    val esRobotica = nombreProyecto.contains("Robótica en Aserraderos", ignoreCase = true)
+    val esCeldas = nombreProyecto.contains("Celdas Robotizadas", ignoreCase = true)
 
-    val titulo = if (esModular) "Prototipo de vivienda modular" else "Análisis sísmico de uniones"
-    val subtitulo = if (esModular)
-        "Una propuesta para explorar la construcción de viviendas mediante módulos de madera."
-    else
-        "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT."
-    val estado = if (esModular) "En ejecución" else "Finalizado"
-    val anio = if (esModular) "Año 2025" else "Año 2024"
+    val titulo = when {
+        esModular -> "Prototipo de vivienda modular"
+        esBiopolimeros -> "Biopolímeros forestales avanzados"
+        esNanocompuestos -> "Nanocompuestos estructurales"
+        esCicloVida -> "Evaluación de Ciclo de Vida en CLT"
+        esMercados -> "Mercados de Exportación Maderera"
+        esDesarrolloLocal -> "Desarrollo Local y Territorio"
+        esRobotica -> "Robótica en Aserraderos"
+        esCeldas -> "Celdas Robotizadas de Producción"
+        else -> "Análisis sísmico de uniones"
+    }
 
-    val investigadorNombre = if (esModular) "Dra. Ana Silva" else "Dr. Carlos Ruiz"
-    val investigadorIniciales = if (esModular) "AS" else "CR"
-    val investigadorEspecialidad = if (esModular) "Ingeniería Estructural" else "Arquitectura Sustentable"
+    val subtitulo = when {
+        esModular -> "Una propuesta para explorar la construcción de viviendas mediante módulos de madera."
+        esBiopolimeros -> "Desarrollo y caracterización de nuevos biopolímeros derivados de la biomasa forestal."
+        esNanocompuestos -> "Aplicación de celulosa nanofibrilada en elementos de alta resistencia mecánica."
+        esCicloVida -> "Análisis ambiental y de huella de carbono en la producción y uso de paneles contralaminados de madera."
+        esMercados -> "Estudio de cadenas de valor y proyecciones de mercados madereros globales."
+        esDesarrolloLocal -> "Evaluación del impacto socioeconómico y estrategias de desarrollo en comunidades forestales."
+        esRobotica -> "Implementación de sistemas robóticos y control de alta precisión para la transformación de la madera."
+        esCeldas -> "Optimización y automatización avanzada de procesos de manufactura con control numérico y robótica colaborativa."
+        else -> "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT."
+    }
 
-    val pubTipo = if (esModular) "Policy Brief · 2025" else "Artículo científico · 2024"
-    val pubTitulo = if (esModular) "Guía de diseño estructural" else "Resistencia al fuego en CLT"
-    val pubAutoria = if (esModular) "Dra. Ana Silva y Dr. Carlos Ruiz" else "Dr. Carlos Ruiz · Análisis sísmico de uniones"
+    val estado = if (esCicloVida) "Finalizado" else "En ejecución"
+    val anio = if (esCicloVida) "Año 2024" else "Año 2025"
+
+    val investigadorNombre = when {
+        esModular -> "Dra. Ana Silva"
+        esBiopolimeros -> "Dr. Luis Morales"
+        esNanocompuestos -> "Dra. Sofía Valdés"
+        esCicloVida -> "Dr. Mateo Rojas"
+        esMercados -> "Dr. Gabriel Fuentes"
+        esDesarrolloLocal -> "Dra. Marcela Parra"
+        esRobotica -> "Dr. Ignacio Becker"
+        esCeldas -> "Dra. Valentina Soto"
+        else -> "Dr. Carlos Ruiz"
+    }
+
+    val investigadorIniciales = when {
+        esModular -> "AS"
+        esBiopolimeros -> "LM"
+        esNanocompuestos -> "SV"
+        esCicloVida -> "MR"
+        esMercados -> "GF"
+        esDesarrolloLocal -> "MP"
+        esRobotica -> "IB"
+        esCeldas -> "VS"
+        else -> "CR"
+    }
+
+    val investigadorEspecialidad = when {
+        esModular -> "Ingeniería Estructural"
+        esBiopolimeros -> "Química de Materiales"
+        esNanocompuestos -> "Nanotecnología de la Madera"
+        esCicloVida -> "Gestión Ambiental"
+        esMercados -> "Economía Forestal"
+        esDesarrolloLocal -> "Sostenibilidad Territorial"
+        esRobotica -> "Automatización Industrial"
+        esCeldas -> "Manufactura Avanzada"
+        else -> "Arquitectura Sustentable"
+    }
+
+    val pubTipo = when {
+        esModular || esMercados || esDesarrolloLocal -> "Policy Brief · 2025"
+        else -> "Artículo científico · 2025"
+    }
+
+    val pubTitulo = when {
+        esModular -> "Guía de diseño estructural"
+        esBiopolimeros -> "Caracterización de biopolímeros"
+        esNanocompuestos -> "Nanocompuestos de celulosa"
+        esCicloVida -> "Impacto ambiental del CLT"
+        esMercados -> "Tendencias del mercado maderero"
+        esDesarrolloLocal -> "Desarrollo Local Sostenible"
+        esRobotica -> "Automatización en aserraderos"
+        esCeldas -> "Manufactura y Robótica Avanzada"
+        else -> "Resistencia al fuego en CLT"
+    }
+
+    val pubAutoria = when {
+        esModular -> "Dra. Ana Silva y Dr. Carlos Ruiz"
+        esBiopolimeros -> "Dr. Luis Morales · Biopolímeros forestales"
+        esNanocompuestos -> "Dra. Sofía Valdés · Nanocompuestos"
+        esCicloVida -> "Dr. Mateo Rojas · Ciclo de Vida en CLT"
+        esMercados -> "Dr. Gabriel Fuentes · Mercados de Exportación"
+        esDesarrolloLocal -> "Dra. Marcela Parra · Desarrollo Local"
+        esRobotica -> "Dr. Ignacio Becker · Robótica en Aserraderos"
+        esCeldas -> "Dra. Valentina Soto · Celdas Robotizadas"
+        else -> "Dr. Carlos Ruiz · Análisis sísmico de uniones"
+    }
+
+    val lineaNombre = when {
+        esBiopolimeros || esNanocompuestos -> "Bioproductos y Biomateriales"
+        esMercados || esDesarrolloLocal -> "Gestión y Economía Forestal"
+        esRobotica || esCeldas -> "Innovación en Procesos Industriales"
+        else -> "Construcción Sustentable en Madera"
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -100,8 +191,14 @@ fun FichaProyectoScreen(
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Construcción Sustentable en Madera", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
+                    Text(
+                        lineaNombre,
+                        color = Color(0xFF4A3780),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
                 }
             }
         }
@@ -119,10 +216,17 @@ fun FichaProyectoScreen(
                         Text("¿Qué busca resolver?", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF32224A))
                     }
                     Text(
-                        if (esModular)
-                            "Evaluar una solución modular que integre diseño estructural, facilidad de montaje y uso eficiente de madera. La guía relacionada sintetiza criterios para su diseño."
-                        else
-                            "Analizar la respuesta estructural de uniones en construcciones de madera ante eventos sísmicos y validar su comportamiento al fuego.",
+                        when {
+                            esModular -> "Evaluar una solución modular que integre diseño estructural, facilidad de montaje y uso eficiente de madera. La guía relacionada sintetiza criterios para su diseño."
+                            esBiopolimeros -> "Transformar componentes de la biomasa forestal en nuevos biopolímeros y materiales de alto valor renovable."
+                            esNanocompuestos -> "Desarrollar materiales compuestos de alta resistencia basados en celulosa nanofibrilada para aplicaciones avanzadas."
+                            esCicloVida -> "Cuantificar la huella de carbono y el impacto ambiental global del uso de paneles CLT en la construcción industrializada."
+                            esMercados -> "Analizar la evolución de la demanda internacional, barreras comerciales y oportunidades estratégicas para la exportación de productos madereros."
+                            esDesarrolloLocal -> "Evaluar el impacto socioeconómico y promover estrategias de desarrollo sostenible en las comunidades vinculadas a los territorios forestales."
+                            esRobotica -> "Diseñar e implementar algoritmos de control avanzado y celdas robotizadas para elevar la precisión en la transformación industrial de la madera."
+                            esCeldas -> "Optimizar los procesos de manufactura y el rendimiento de celdas robotizadas colaborativas orientadas a la prefabricación en madera."
+                            else -> "Analizar la respuesta estructural de uniones en construcciones de madera ante eventos sísmicos y validar su comportamiento al fuego."
+                        },
                         fontSize = 14.sp,
                         color = Color.DarkGray,
                         modifier = Modifier.padding(vertical = 12.dp)
@@ -133,7 +237,7 @@ fun FichaProyectoScreen(
         }
 
         item {
-            Text("Investigadora responsable", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+            Text("Investigador responsable", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
             FichaInvestigadorCard(
                 iniciales = investigadorIniciales,
                 especialidad = investigadorEspecialidad,
@@ -150,7 +254,8 @@ fun FichaProyectoScreen(
             FichaPublicacionCard(
                 tipo = pubTipo,
                 titulo = pubTitulo,
-                autoria = pubAutoria
+                autoria = pubAutoria,
+                onClick = { onPublicacionClick(pubTitulo) }
             )
         }
 
@@ -184,15 +289,15 @@ fun FichaInvestigadorCard(iniciales: String, especialidad: String, nombre: Strin
                 Text(especialidad, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
         }
     }
 }
 
 @Composable
-fun FichaPublicacionCard(tipo: String, titulo: String, autoria: String) {
+fun FichaPublicacionCard(tipo: String, titulo: String, autoria: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),
@@ -210,7 +315,7 @@ fun FichaPublicacionCard(tipo: String, titulo: String, autoria: String) {
                 Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
                 Text(autoria, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
             }
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray, modifier = Modifier.align(Alignment.CenterVertically))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray, modifier = Modifier.align(Alignment.CenterVertically))
         }
     }
 }

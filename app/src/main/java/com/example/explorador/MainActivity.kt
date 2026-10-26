@@ -82,13 +82,27 @@ class MainActivity : ComponentActivity() {
                                         proyectoSeleccionado = proj
                                         viendoFichaPublicacion = false
                                         viendoFichaProyecto = true
+                                    },
+                                    onInicioClick = {
+                                        lineaSeleccionada = null
+                                        viendoFichaPublicacion = false
+                                        viendoFichaProyecto = false
+                                        investigadorSeleccionado = null
+                                        viendoInvestigadores = false
+                                        viendoProyectos = false
+                                        viendoPublicaciones = false
                                     }
                                 )
                             } else if (viendoFichaProyecto) {
                                 FichaProyectoScreen(
                                     nombreProyecto = proyectoSeleccionado,
                                     onVolver = { viendoFichaProyecto = false },
-                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
+                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre },
+                                    onPublicacionClick = { pub ->
+                                        publicacionSeleccionada = pub
+                                        viendoFichaProyecto = false
+                                        viendoFichaPublicacion = true
+                                    }
                                 )
                             } else if (investigadorSeleccionado != null) {
                                 FichaInvestigadorScreen(
@@ -126,7 +140,8 @@ class MainActivity : ComponentActivity() {
                                     onVolver = { lineaSeleccionada = null },
                                     onVerInvestigadores = { viendoInvestigadores = true },
                                     onVerProyectos = { viendoProyectos = true },
-                                    onVerPublicaciones = { viendoPublicaciones = true }
+                                    onVerPublicaciones = { viendoPublicaciones = true },
+                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
                                 )
                             }
                         }

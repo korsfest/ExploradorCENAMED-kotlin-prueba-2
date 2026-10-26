@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
@@ -29,17 +29,55 @@ fun FichaInvestigadorScreen(
     onVolver: () -> Unit,
     onProyectoClick: (String) -> Unit = {}
 ) {
-    val esAnaSilva = nombreInvestigador.contains("Ana Silva", ignoreCase = true)
+    val iniciales = when {
+        nombreInvestigador.contains("Ana Silva") -> "AS"
+        nombreInvestigador.contains("Carlos Ruiz") -> "CR"
+        nombreInvestigador.contains("Luis Morales") -> "LM"
+        nombreInvestigador.contains("Sofía Valdés") -> "SV"
+        nombreInvestigador.contains("Mateo Rojas") -> "MR"
+        nombreInvestigador.contains("Gabriel Fuentes") -> "GF"
+        nombreInvestigador.contains("Marcela Parra") -> "MP"
+        nombreInvestigador.contains("Ignacio Becker") -> "IB"
+        else -> "VS"
+    }
 
-    val iniciales = if (esAnaSilva) "AS" else "CR"
-    val especialidad = if (esAnaSilva) "Ingeniería Estructural" else "Arquitectura Sustentable"
-    val descripcion = if (esAnaSilva)
-        "Diseño y evaluación de sistemas modulares de madera para vivienda."
-    else
-        "Investiga el desempeño sísmico y la seguridad de soluciones constructivas en madera."
+    val especialidad = when {
+        nombreInvestigador.contains("Ana Silva") -> "Ingeniería Estructural"
+        nombreInvestigador.contains("Carlos Ruiz") -> "Arquitectura Sustentable"
+        nombreInvestigador.contains("Luis Morales") -> "Química de Materiales"
+        nombreInvestigador.contains("Sofía Valdés") -> "Nanotecnología de la Madera"
+        nombreInvestigador.contains("Mateo Rojas") -> "Gestión Ambiental"
+        nombreInvestigador.contains("Gabriel Fuentes") -> "Economía Forestal"
+        nombreInvestigador.contains("Marcela Parra") -> "Sostenibilidad Territorial"
+        nombreInvestigador.contains("Ignacio Becker") -> "Automatización Industrial"
+        else -> "Manufactura Avanzada"
+    }
 
-    val proyectoRelacionado = if (esAnaSilva) "Prototipo de vivienda modular" else "Análisis sísmico de uniones"
-    val proyectoDetalle = if (esAnaSilva) "2025 · En ejecución" else "2024 · Finalizado"
+    val descripcion = when {
+        nombreInvestigador.contains("Ana Silva") -> "Diseño y evaluación de sistemas modulares de madera para vivienda."
+        nombreInvestigador.contains("Carlos Ruiz") -> "Investiga el desempeño sísmico y la seguridad de soluciones constructivas en madera."
+        nombreInvestigador.contains("Luis Morales") -> "Explora la transformación de componentes de la madera en materiales de origen biológico."
+        nombreInvestigador.contains("Sofía Valdés") -> "Investigación sobre celulosa nanofibrilada para aplicaciones de alta resistencia."
+        nombreInvestigador.contains("Mateo Rojas") -> "Análisis de huella de carbono y sostenibilidad en procesos de construcción."
+        nombreInvestigador.contains("Gabriel Fuentes") -> "Estudio de cadenas de valor y proyecciones de mercados madereros globales."
+        nombreInvestigador.contains("Marcela Parra") -> "Evaluación del impacto socioeconómico en comunidades forestales."
+        nombreInvestigador.contains("Ignacio Becker") -> "Desarrollo de algoritmos de control para maquinaria de alta precisión en madera."
+        else -> "Optimización de celdas de manufactura y robótica colaborativa."
+    }
+
+    val proyectoRelacionado = when {
+        nombreInvestigador.contains("Ana Silva") -> "Prototipo de vivienda modular"
+        nombreInvestigador.contains("Carlos Ruiz") -> "Análisis sísmico de uniones"
+        nombreInvestigador.contains("Luis Morales") -> "Biopolímeros forestales avanzados"
+        nombreInvestigador.contains("Sofía Valdés") -> "Nanocompuestos estructurales"
+        nombreInvestigador.contains("Mateo Rojas") -> "Evaluación de Ciclo de Vida en CLT"
+        nombreInvestigador.contains("Gabriel Fuentes") -> "Mercados de Exportación Maderera"
+        nombreInvestigador.contains("Marcela Parra") -> "Desarrollo Local y Territorio"
+        nombreInvestigador.contains("Ignacio Becker") -> "Robótica en Aserraderos"
+        else -> "Celdas Robotizadas de Producción"
+    }
+
+    val proyectoDetalle = if (nombreInvestigador.contains("Carlos Ruiz") || nombreInvestigador.contains("Mateo Rojas")) "2024 · Finalizado" else "2025 · En ejecución"
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -102,7 +140,7 @@ fun FichaInvestigadorScreen(
                         Text(proyectoDetalle, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
                         Text(proyectoRelacionado, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
                 }
             }
         }
