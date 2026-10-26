@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
                 var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
                 var viendoInvestigadores by remember { mutableStateOf(false) }
                 var viendoProyectos by remember { mutableStateOf(false) }
+                var viendoPublicaciones by remember { mutableStateOf(false) }
 
                 Scaffold(
                     bottomBar = {
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
                         if (lineaSeleccionada == null) {
                             viendoInvestigadores = false
                             viendoProyectos = false
+                            viendoPublicaciones = false
                             if (pestañaActual == "explorar") {
                                 ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
                             } else {
@@ -67,12 +69,15 @@ class MainActivity : ComponentActivity() {
                                 InvestigadoresScreen(onVolver = { viendoInvestigadores = false })
                             } else if (viendoProyectos) {
                                 ProyectosScreen(onVolver = { viendoProyectos = false })
+                            } else if (viendoPublicaciones) {
+                                PublicacionesScreen(onVolver = { viendoPublicaciones = false })
                             } else {
                                 DetalleLineaScreen(
                                     linea = lineaSeleccionada!!,
                                     onVolver = { lineaSeleccionada = null },
                                     onVerInvestigadores = { viendoInvestigadores = true },
-                                    onVerProyectos = { viendoProyectos = true }
+                                    onVerProyectos = { viendoProyectos = true },
+                                    onVerPublicaciones = { viendoPublicaciones = true }
                                 )
                             }
                         }

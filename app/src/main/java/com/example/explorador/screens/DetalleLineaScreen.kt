@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,7 +19,13 @@ import com.example.explorador.model.LineaInvestigacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit, onVerInvestigadores: () -> Unit, onVerProyectos: () -> Unit) {
+fun DetalleLineaScreen(
+    linea: LineaInvestigacion,
+    onVolver: () -> Unit,
+    onVerInvestigadores: () -> Unit,
+    onVerProyectos: () -> Unit,
+    onVerPublicaciones: () -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -62,6 +69,14 @@ fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit, onVerInv
                         supportingContent = { Text("En ejecución y finalizados") },
                         leadingContent = { Icon(Icons.Default.Build, contentDescription = null) },
                         trailingContent = { Text(linea.proyectos.size.toString()) }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    ListItem(
+                        modifier = Modifier.clickable { onVerPublicaciones() },
+                        headlineContent = { Text("Publicaciones", fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text("Hallazgos para compartir") },
+                        leadingContent = { Icon(Icons.Outlined.Article, contentDescription = null) },
+                        trailingContent = { Text(linea.publicaciones.size.toString()) }
                     )
                 }
             }
