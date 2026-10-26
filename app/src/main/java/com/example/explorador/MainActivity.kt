@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 var pestañaActual by remember { mutableStateOf("explorar") }
                 var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
+                var viendoInvestigadores by remember { mutableStateOf(false) }
 
                 Scaffold(
                     bottomBar = {
@@ -74,16 +76,22 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.background
                     ) {
                         if (lineaSeleccionada == null) {
+                            viendoInvestigadores = false // Reset al volver a la vista principal
                             if (pestañaActual == "explorar") {
                                 ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
                             } else {
-                                BuscarScreen() // Vista base para "image_e36628.png"
+                                BuscarScreen()
                             }
                         } else {
-                            DetalleLineaScreen(
-                                linea = lineaSeleccionada!!,
-                                onVolver = { lineaSeleccionada = null }
-                            ) // Vista base para "image_e36647.png"
+                            if (viendoInvestigadores) {
+                                InvestigadoresScreen(onVolver = { viendoInvestigadores = false })
+                            } else {
+                                DetalleLineaScreen(
+                                    linea = lineaSeleccionada!!,
+                                    onVolver = { lineaSeleccionada = null },
+                                    onVerInvestigadores = { viendoInvestigadores = true }
+                                )
+                            }
                         }
                     }
                 }
@@ -165,7 +173,7 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Build, // Placeholder para el icono de Figma
+                        imageVector = Icons.Default.Build,
                         contentDescription = null,
                         modifier = Modifier.size(40.dp).padding(end = 12.dp),
                         tint = Color(0xFF4A3780)
@@ -186,7 +194,7 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit) {
+fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit, onVerInvestigadores: () -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -231,6 +239,7 @@ fun DetalleLineaScreen(linea: LineaInvestigacion, onVolver: () -> Unit) {
             ) {
                 Column {
                     ListItem(
+                        modifier = Modifier.clickable { onVerInvestigadores() },
                         headlineContent = { Text("Investigadores", fontWeight = FontWeight.Bold) },
                         supportingContent = { Text("Conoce a quienes investigan") },
                         leadingContent = { Icon(Icons.Default.Person, contentDescription = null) },
@@ -259,6 +268,175 @@ fun StatCard(numero: String, etiqueta: String, modifier: Modifier = Modifier) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(numero, fontSize = 24.sp, color = Color(0xFF4A3780))
             Text(etiqueta, fontSize = 10.sp, color = Color.Gray)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InvestigadoresScreen(onVolver: () -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // App Bar
+        item {
+            TopAppBar(
+                title = { Text("Investigadores de la línea", fontSize = 16.sp, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onVolver) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO: Buscar */ }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        }
+
+        // Etiqueta de la línea (Breadcrumb)
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Construcción Sustentable en Madera", color = Color(0xFF4A3780), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
+                }
+            }
+        }
+
+        // Títulos de la sección
+        item {
+            Text("Personas que conectan ideas", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF32224A))
+            Text(
+                "2 investigadores en Construcción Sustentable en Madera.",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
+        // Filtros (Chips)
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = true,
+                    onClick = {},
+                    label = { Text("Todos · 2") },
+                    leadingIcon = { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                )
+                FilterChip(
+                    selected = false,
+                    onClick = {},
+                    label = { Text("Especialidad") },
+                    trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                )
+            }
+        }
+
+        // Encabezado de la lista
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Equipo de investigación", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("A–Z", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+
+        // Tarjeta Investigador 1
+        item {
+            InvestigadorCard(
+                iniciales = "AS",
+                especialidad = "Ingeniería Estructural",
+                nombre = "Dra. Ana Silva",
+                descripcion = "Diseño y evaluación de sistemas modulares de madera para vivienda.",
+                estadisticas = "1 proyecto · 1 publicación relacionada"
+            )
+        }
+
+        // Tarjeta Investigador 2
+        item {
+            InvestigadorCard(
+                iniciales = "CR",
+                especialidad = "Arquitectura Sustentable",
+                nombre = "Dr. Carlos Ruiz",
+                descripcion = "Desempeño sísmico y seguridad de soluciones constructivas en madera.",
+                estadisticas = "1 proyecto · 2 publicaciones relacionadas"
+            )
+        }
+
+        // Tarjeta informativa inferior
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("De las personas a sus hallazgos", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF32224A))
+                    Text(
+                        "Abre una ficha para conocer su enfoque y seguir los vínculos a proyectos y publicaciones de esta muestra.",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+
+        // Texto legal / Footer
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 32.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Outlined.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Muestra académica · datos e indicadores sintéticos", fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+    }
+}
+
+@Composable
+fun InvestigadorCard(iniciales: String, especialidad: String, nombre: String, descripcion: String, estadisticas: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable { },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+            Box(
+                modifier = Modifier.size(48.dp).background(Color(0xFFEADDFF), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(iniciales, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+            }
+            Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                Text(especialidad, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
+                Text(descripcion, fontSize = 14.sp, color = Color.DarkGray, lineHeight = 18.sp)
+                Text(estadisticas, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+            }
+            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray, modifier = Modifier.align(Alignment.CenterVertically))
         }
     }
 }
@@ -452,7 +630,4 @@ fun SearchResultCard(tipo: String, titulo: String, descripcion: String, icon: @C
         }
     }
 }
-// UI: Estructura base y tema principal configurado
-// Feature: Implementacion de vista ExplorarScreen y MockData
-// Feature: Integracion de DetalleLineaScreen e interacciones
-// Fix: Ajustes finales de estados de navegacion del MVP
+// UI: Integración completa de InvestigadoresScreen con navegación funcional.
