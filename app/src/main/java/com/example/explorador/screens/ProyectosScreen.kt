@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProyectosScreen(onVolver: () -> Unit) {
+fun ProyectosScreen(onVolver: () -> Unit, onVerProyecto: () -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             TopAppBar(
@@ -64,7 +64,7 @@ fun ProyectosScreen(onVolver: () -> Unit) {
                 Text("Más recientes", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
         }
-        item { ProyectoCard("2025 · En ejecución", "Prototipo de vivienda modular", "Propuesta de módulos habitacionales en madera con foco en montaje y desempeño estructural.", "Dra. Ana Silva · 1 publicación relacionada") }
+        item { ProyectoCard("2025 · En ejecución", "Prototipo de vivienda modular", "Propuesta de módulos habitacionales en madera con foco en montaje y desempeño estructural.", "Dra. Ana Silva · 1 publicación relacionada", onClick = onVerProyecto) }
         item { ProyectoCard("2024 · Finalizado", "Análisis sísmico de uniones", "Evaluación de uniones ante sismos y revisión complementaria del desempeño al fuego en CLT.", "Dr. Carlos Ruiz · 1 publicación relacionada") }
         item {
             Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(16.dp)) {
@@ -85,9 +85,9 @@ fun ProyectosScreen(onVolver: () -> Unit) {
 }
 
 @Composable
-fun ProyectoCard(estado: String, titulo: String, descripcion: String, responsable: String) {
+fun ProyectoCard(estado: String, titulo: String, descripcion: String, responsable: String, onClick: () -> Unit = {}) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),

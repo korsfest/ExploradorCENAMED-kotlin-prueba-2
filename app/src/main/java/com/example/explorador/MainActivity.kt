@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
                 var viendoProyectos by remember { mutableStateOf(false) }
                 var viendoPublicaciones by remember { mutableStateOf(false) }
                 var investigadorSeleccionado by remember { mutableStateOf<String?>(null) }
+                var viendoFichaProyecto by remember { mutableStateOf(false) }
 
                 Scaffold(
                     bottomBar = {
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
                             viendoInvestigadores = false
                             viendoProyectos = false
                             viendoPublicaciones = false
+                            viendoFichaProyecto = false
                             investigadorSeleccionado = null
                             if (pestañaActual == "explorar") {
                                 ExplorarScreen(onLineaClick = { linea -> lineaSeleccionada = linea })
@@ -67,10 +69,16 @@ class MainActivity : ComponentActivity() {
                                 BuscarScreen()
                             }
                         } else {
-                            if (investigadorSeleccionado != null) {
+                            if (viendoFichaProyecto) {
+                                FichaProyectoScreen(
+                                    onVolver = { viendoFichaProyecto = false },
+                                    onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
+                                )
+                            } else if (investigadorSeleccionado != null) {
                                 FichaInvestigadorScreen(
                                     nombreInvestigador = investigadorSeleccionado!!,
-                                    onVolver = { investigadorSeleccionado = null }
+                                    onVolver = { investigadorSeleccionado = null },
+                                    onProyectoClick = { viendoFichaProyecto = true }
                                 )
                             } else if (viendoInvestigadores) {
                                 InvestigadoresScreen(
@@ -78,7 +86,10 @@ class MainActivity : ComponentActivity() {
                                     onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
                                 )
                             } else if (viendoProyectos) {
-                                ProyectosScreen(onVolver = { viendoProyectos = false })
+                                ProyectosScreen(
+                                    onVolver = { viendoProyectos = false },
+                                    onVerProyecto = { viendoFichaProyecto = true }
+                                )
                             } else if (viendoPublicaciones) {
                                 PublicacionesScreen(onVolver = { viendoPublicaciones = false })
                             } else {
