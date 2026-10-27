@@ -10,13 +10,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Factory
 import androidx.compose.material.icons.filled.Forest
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,7 @@ import com.example.explorador.model.LineaInvestigacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
+fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
     val lineas = listOf(
         LineaInvestigacion(
             id = "1",
@@ -62,6 +63,11 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
         )
     )
 
+    // Gradiente vibrante para el banner principal
+    val bannerGradient = Brush.linearGradient(
+        colors = listOf(Color(0xFF2563EB), Color(0xFF8B5CF6), Color(0xFFEC4899))
+    )
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -75,7 +81,10 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
             ) {
                 Column {
                     Text("CENAMAD Explorador", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1F1A24))
-                    Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray)
+                    if (email.isNotEmpty()) {
+                        Text("¡Bienvenido, $email!", fontSize = 14.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
+                    }
+                    Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
                 }
                 IconButton(onClick = {}) {
                     Icon(Icons.Outlined.Search, contentDescription = "Buscar", tint = Color(0xFF1F1A24))
@@ -86,20 +95,22 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF2B2042)),
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text("CIENCIA, TECNOLOGÍA Y MADERA", color = Color(0xFFD0BCFF), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        "Conocimiento que construye futuro.",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        lineHeight = 30.sp
-                    )
-                    Text("Conecta líneas, personas y hallazgos de la industria de la madera.", color = Color(0xFFE8DEF8), fontSize = 14.sp)
+                Box(modifier = Modifier.background(bannerGradient)) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text("CIENCIA, TECNOLOGÍA Y MADERA", color = Color(0xFFE0E7FF), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Conocimiento que construye futuro.",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            lineHeight = 30.sp
+                        )
+                        Text("Conecta líneas, personas y hallazgos de la industria de la madera.", color = Color(0xFFF3E8FF), fontSize = 14.sp)
+                    }
                 }
             }
         }
@@ -124,6 +135,18 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
                     2 -> Icons.Default.Forest
                     else -> Icons.Default.Factory
                 },
+                colorIcono = when(index) {
+                    0 -> Color(0xFFE91E63) // Rosa
+                    1 -> Color(0xFF4CAF50) // Verde
+                    2 -> Color(0xFFFF9800) // Naranja
+                    else -> Color(0xFF03A9F4) // Azul claro
+                },
+                fondoIcono = when(index) {
+                    0 -> Color(0xFFFCE4EC)
+                    1 -> Color(0xFFE8F5E9)
+                    2 -> Color(0xFFFFF3E0)
+                    else -> Color(0xFFE1F5FE)
+                },
                 onClick = { onLineaClick(linea) }
             )
         }
@@ -131,26 +154,26 @@ fun ExplorarScreen(onLineaClick: (LineaInvestigacion) -> Unit) {
 }
 
 @Composable
-fun LineaInvestigacionCard(titulo: String, detalle: String, icono: ImageVector, onClick: () -> Unit) {
+fun LineaInvestigacionCard(titulo: String, detalle: String, icono: ImageVector, colorIcono: Color, fondoIcono: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+        border = BorderStroke(1.dp, Color(0xFFF3F4F6))
     ) {
         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(48.dp).background(Color(0xFFF3EDF7), RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(48.dp).background(fondoIcono, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icono, contentDescription = null, tint = Color(0xFF4A3780))
+                Icon(icono, contentDescription = null, tint = colorIcono)
             }
             Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
                 Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1F1A24))
                 Text(detalle, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
             }
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
         }
     }
 }
