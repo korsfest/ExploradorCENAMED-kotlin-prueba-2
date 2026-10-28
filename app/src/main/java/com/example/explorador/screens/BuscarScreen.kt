@@ -11,12 +11,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material3.*
@@ -28,168 +25,191 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-enum class TipoIcono { PROYECTO, INVESTIGADOR, PUBLICACION }
-
-data class ResultadoBusqueda(
+data class SearchItem(
     val tipo: String,
     val titulo: String,
-    val descripcion: String,
-    val tipoIcono: TipoIcono,
-    val iniciales: String? = null
+    val subtitulo: String,
+    val linea: String,
+    val tag: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuscarScreen(
-    onNavigateBack: () -> Unit = {},
-    onNavigateToInvestigador: (String) -> Unit = {}
+    onInvestigadorClick: (String) -> Unit,
+    onProyectoClick: (String) -> Unit,
+    onPublicacionClick: (String) -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Todos") }
+    var searchText by remember { mutableStateOf("") }
+    var selectedLinea by remember { mutableStateOf("Todas las líneas") }
+    var selectedFilter by remember { mutableStateOf("Todos") }
+    var expandedDropdown by remember { mutableStateOf(false) }
 
-    val todosLosResultados = remember {
-        listOf(
-            ResultadoBusqueda("PROYECTO · 2025 · En ejecución", "Prototipo de vivienda modular", "Coincidencia en el título", TipoIcono.PROYECTO),
-            ResultadoBusqueda("INVESTIGADORA · Ingeniería Estructural", "Dra. Ana Silva", "Responsable del proyecto de vivienda modular", TipoIcono.INVESTIGADOR, "AS"),
-            ResultadoBusqueda("PUBLICACIÓN · Policy Brief", "Guía de diseño estructural", "Relacionada con el prototipo modular", TipoIcono.PUBLICACION)
-        )
+    val lineas = listOf(
+        "Todas las líneas",
+        "Construcción Sustentable en Madera",
+        "Bioproductos y Biomateriales",
+        "Gestión y Economía Forestal",
+        "Innovación en Procesos Industriales"
+    )
+
+    val filters = listOf("Todos", "Investigadores", "Proyectos", "Publicaciones")
+
+    val allItems = listOf(
+        SearchItem("INVESTIGADOR", "Dra. Ana Silva", "Ingeniería Estructural", "Construcción Sustentable en Madera", "AS"),
+        SearchItem("INVESTIGADOR", "Dr. Carlos Ruiz", "Arquitectura Sustentable", "Construcción Sustentable en Madera", "CR"),
+        SearchItem("PROYECTO", "Prototipo de vivienda modular", "2025 · En ejecución", "Construcción Sustentable en Madera"),
+        SearchItem("PROYECTO", "Análisis sísmico de uniones", "2024 · Finalizado", "Construcción Sustentable en Madera"),
+        SearchItem("PUBLICACIÓN", "Guía de diseño estructural", "Policy Brief · 2025", "Construcción Sustentable en Madera"),
+        SearchItem("PUBLICACIÓN", "Resistencia al fuego en CLT", "Artículo científico · 2024", "Construcción Sustentable en Madera"),
+
+        SearchItem("INVESTIGADOR", "Dr. Luis Morales", "Química de Materiales", "Bioproductos y Biomateriales", "LM"),
+        SearchItem("INVESTIGADOR", "Dra. Sofía Valdés", "Nanotecnología de la Madera", "Bioproductos y Biomateriales", "SV"),
+        SearchItem("INVESTIGADOR", "Dr. Mateo Rojas", "Gestión Ambiental", "Bioproductos y Biomateriales", "MR"),
+        SearchItem("PROYECTO", "Biopolímeros forestales avanzados", "2025 · En ejecución", "Bioproductos y Biomateriales"),
+        SearchItem("PROYECTO", "Nanocompuestos estructurales", "2025 · En ejecución", "Bioproductos y Biomateriales"),
+        SearchItem("PROYECTO", "Evaluación de Ciclo de Vida en CLT", "2024 · Finalizado", "Bioproductos y Biomateriales"),
+        SearchItem("PUBLICACIÓN", "Caracterización de biopolímeros", "Artículo científico · 2025", "Bioproductos y Biomateriales"),
+        SearchItem("PUBLICACIÓN", "Nanocompuestos de celulosa", "Artículo científico · 2025", "Bioproductos y Biomateriales"),
+        SearchItem("PUBLICACIÓN", "Impacto ambiental del CLT", "Artículo científico · 2024", "Bioproductos y Biomateriales"),
+
+        SearchItem("INVESTIGADOR", "Dr. Gabriel Fuentes", "Economía Forestal", "Gestión y Economía Forestal", "GF"),
+        SearchItem("INVESTIGADOR", "Dra. Marcela Parra", "Sostenibilidad Territorial", "Gestión y Economía Forestal", "MP"),
+        SearchItem("PROYECTO", "Mercados de Exportación Maderera", "2025 · En ejecución", "Gestión y Economía Forestal"),
+        SearchItem("PROYECTO", "Desarrollo Local y Territorio", "2025 · En ejecución", "Gestión y Economía Forestal"),
+        SearchItem("PUBLICACIÓN", "Tendencias del mercado maderero", "Policy Brief · 2025", "Gestión y Economía Forestal"),
+        SearchItem("PUBLICACIÓN", "Desarrollo Local Sostenible", "Policy Brief · 2025", "Gestión y Economía Forestal"),
+
+        SearchItem("INVESTIGADOR", "Dr. Ignacio Becker", "Automatización Industrial", "Innovación en Procesos Industriales", "IB"),
+        SearchItem("INVESTIGADOR", "Dra. Valentina Soto", "Manufactura Avanzada", "Innovación en Procesos Industriales", "VS"),
+        SearchItem("PROYECTO", "Robótica en Aserraderos", "2025 · En ejecución", "Innovación en Procesos Industriales"),
+        SearchItem("PROYECTO", "Celdas Robotizadas de Producción", "2025 · En ejecución", "Innovación en Procesos Industriales"),
+        SearchItem("PUBLICACIÓN", "Automatización en aserraderos", "Policy Brief · 2025", "Innovación en Procesos Industriales"),
+        SearchItem("PUBLICACIÓN", "Manufactura y Robótica Avanzada", "Policy Brief · 2025", "Innovación en Procesos Industriales")
+    )
+
+    val filteredItems = allItems.filter { item ->
+        val matchesSearch = searchText.isBlank() ||
+                item.titulo.contains(searchText, ignoreCase = true) ||
+                item.subtitulo.contains(searchText, ignoreCase = true)
+        val matchesLinea = selectedLinea == "Todas las líneas" || item.linea == selectedLinea
+        val matchesType = when (selectedFilter) {
+            "Investigadores" -> item.tipo == "INVESTIGADOR"
+            "Proyectos" -> item.tipo == "PROYECTO"
+            "Publicaciones" -> item.tipo == "PUBLICACIÓN"
+            else -> true
+        }
+        matchesSearch && matchesLinea && matchesType
     }
 
-    val resultadosPorTexto = if (searchQuery.isEmpty()) {
-        todosLosResultados
-    } else {
-        todosLosResultados.filter {
-            it.titulo.contains(searchQuery, ignoreCase = true) ||
-                    it.descripcion.contains(searchQuery, ignoreCase = true) ||
-                    it.tipo.contains(searchQuery, ignoreCase = true)
-        }
-    }
-
-    val resultadosFinales = if (selectedCategory == "Todos") {
-        resultadosPorTexto
-    } else {
-        resultadosPorTexto.filter {
-            when (selectedCategory) {
-                "Investigadores" -> it.tipoIcono == TipoIcono.INVESTIGADOR
-                "Proyectos" -> it.tipoIcono == TipoIcono.PROYECTO
-                "Publicaciones" -> it.tipoIcono == TipoIcono.PUBLICACION
-                else -> true
-            }
-        }
-    }
-
-    val countTodos = resultadosPorTexto.size
-    val countInvestigadores = resultadosPorTexto.count { it.tipoIcono == TipoIcono.INVESTIGADOR }
-    val countProyectos = resultadosPorTexto.count { it.tipoIcono == TipoIcono.PROYECTO }
-    val countPublicaciones = resultadosPorTexto.count { it.tipoIcono == TipoIcono.PUBLICACION }
-
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item {
-            TopAppBar(
-                title = { Text("Buscar conocimiento", fontSize = 16.sp, fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver") } },
-                actions = { IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        }
-        item {
-            Text("Encuentra conexiones", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF32224A))
-            Text("Busca en títulos, temas y contenido relacionado.", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
-        }
-        item {
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
+        Column(modifier = Modifier.background(Color.White).padding(16.dp)) {
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = searchText,
+                onValueChange = { searchText = it },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { if (searchQuery.isNotEmpty()) { IconButton(onClick = { searchQuery = "" }) { Icon(Icons.Default.Close, contentDescription = "Borrar") } } },
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4A3780), unfocusedBorderColor = Color.LightGray, focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
+                placeholder = { Text("Buscar proyectos, personas...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF2563EB),
+                    unfocusedBorderColor = Color(0xFFE5E5E5)
+                )
             )
-        }
-        item {
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("Filtrar resultados", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(
-                    "Limpiar filtros",
-                    color = Color(0xFF4A3780),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.clickable {
-                        searchQuery = ""
-                        selectedCategory = "Todos"
-                    }
-                )
-            }
-            Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(12.dp)) {
-                Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Construcción Sustentable en Madera", color = Color(0xFF4A3780), fontSize = 14.sp)
-                    }
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color(0xFF4A3780))
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = selectedCategory == "Todos", onClick = { selectedCategory = "Todos" }, label = { Text("Todos · $countTodos") })
-                FilterChip(selected = selectedCategory == "Investigadores", onClick = { selectedCategory = "Investigadores" }, label = { Text("Investigadores · $countInvestigadores") })
-                FilterChip(selected = selectedCategory == "Proyectos", onClick = { selectedCategory = "Proyectos" }, label = { Text("Proyectos · $countProyectos") })
-                FilterChip(selected = selectedCategory == "Publicaciones", onClick = { selectedCategory = "Publicaciones" }, label = { Text("Publicaciones · $countPublicaciones") })
-            }
-        }
-        item {
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("${resultadosFinales.size} resultados", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Por relevancia", color = Color.Gray, fontSize = 12.sp)
-            }
-        }
 
-        if (resultadosFinales.isEmpty()) {
-            item {
-                Text(
-                    text = "No se encontraron resultados para \"$searchQuery\"",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 16.dp)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ExposedDropdownMenuBox(
+                expanded = expandedDropdown,
+                onExpandedChange = { expandedDropdown = !expandedDropdown }
+            ) {
+                OutlinedTextField(
+                    value = selectedLinea,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF2563EB),
+                        unfocusedBorderColor = Color(0xFFE5E5E5)
+                    )
                 )
-            }
-        } else {
-            items(resultadosFinales) { resultado ->
-                SearchResultCard(
-                    tipo = resultado.tipo,
-                    titulo = resultado.titulo,
-                    descripcion = resultado.descripcion,
-                    onClick = {
-                        when (resultado.tipoIcono) {
-                            TipoIcono.INVESTIGADOR -> onNavigateToInvestigador(resultado.titulo)
-                            else -> {}
-                        }
-                    }
+                ExposedDropdownMenu(
+                    expanded = expandedDropdown,
+                    onDismissRequest = { expandedDropdown = false }
                 ) {
-                    when (resultado.tipoIcono) {
-                        TipoIcono.PROYECTO -> Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780))
-                        TipoIcono.INVESTIGADOR -> Box(modifier = Modifier.size(40.dp).background(Color(0xFFEADDFF), CircleShape), contentAlignment = Alignment.Center) {
-                            Text(resultado.iniciales ?: "", color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
-                        }
-                        TipoIcono.PUBLICACION -> Icon(Icons.Outlined.Article, contentDescription = null, tint = Color(0xFF4A3780))
+                    lineas.forEach { linea ->
+                        DropdownMenuItem(
+                            text = { Text(linea) },
+                            onClick = {
+                                selectedLinea = linea
+                                expandedDropdown = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                filters.forEach { filter ->
+                    val isSelected = selectedFilter == filter
+                    Surface(
+                        modifier = Modifier.clickable { selectedFilter = filter },
+                        color = if (isSelected) Color(0xFFEADDFF) else Color.Transparent,
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, if (isSelected) Color.Transparent else Color.LightGray)
+                    ) {
+                        Text(
+                            text = filter,
+                            color = if (isSelected) Color(0xFF4A3780) else Color.Gray,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
                     }
                 }
             }
         }
 
-        item { Spacer(modifier = Modifier.height(30.dp)) }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("${filteredItems.size} resultados", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Por relevancia", fontSize = 14.sp, color = Color.Gray)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            items(filteredItems) { item ->
+                SearchItemCard(
+                    item = item,
+                    onClick = {
+                        when (item.tipo) {
+                            "INVESTIGADOR" -> onInvestigadorClick(item.titulo)
+                            "PROYECTO" -> onProyectoClick(item.titulo)
+                            "PUBLICACIÓN" -> onPublicacionClick(item.titulo)
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun SearchResultCard(
-    tipo: String,
-    titulo: String,
-    descripcion: String,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit
-) {
+fun SearchItemCard(item: SearchItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -197,14 +217,23 @@ fun SearchResultCard(
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, Color(0xFFE5E5E5))
     ) {
-        Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) { icon() }
-            Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
-                Text(tipo, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
-                Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
-                Text(descripcion, fontSize = 12.sp, color = Color.Gray)
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.size(48.dp).background(Color(0xFFF3EDF7), if (item.tipo == "INVESTIGADOR") CircleShape else RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                when (item.tipo) {
+                    "INVESTIGADOR" -> Text(item.tag, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                    "PROYECTO" -> Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780))
+                    "PUBLICACIÓN" -> Icon(Icons.Outlined.Article, contentDescription = null, tint = Color(0xFF4A3780))
+                }
             }
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+            Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
+                Text(item.tipo, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(item.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
+                Text(item.subtitulo, fontSize = 13.sp, color = Color.Gray)
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
         }
     }
 }
