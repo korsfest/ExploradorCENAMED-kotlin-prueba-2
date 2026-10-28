@@ -27,7 +27,7 @@ import com.example.explorador.model.LineaInvestigacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
+fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit, onSearchClick: () -> Unit = {}) {
     val lineas = listOf(
         LineaInvestigacion(
             id = "1",
@@ -63,7 +63,6 @@ fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
         )
     )
 
-    // Gradiente vibrante para el banner principal
     val bannerGradient = Brush.linearGradient(
         colors = listOf(Color(0xFF2563EB), Color(0xFF8B5CF6), Color(0xFFEC4899))
     )
@@ -86,7 +85,7 @@ fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
                     }
                     Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
                 }
-                IconButton(onClick = {}) {
+                IconButton(onClick = onSearchClick) {
                     Icon(Icons.Outlined.Search, contentDescription = "Buscar", tint = Color(0xFF1F1A24))
                 }
             }
@@ -136,10 +135,10 @@ fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
                     else -> Icons.Default.Factory
                 },
                 colorIcono = when(index) {
-                    0 -> Color(0xFFE91E63) // Rosa
-                    1 -> Color(0xFF4CAF50) // Verde
-                    2 -> Color(0xFFFF9800) // Naranja
-                    else -> Color(0xFF03A9F4) // Azul claro
+                    0 -> Color(0xFFE91E63)
+                    1 -> Color(0xFF4CAF50)
+                    2 -> Color(0xFFFF9800)
+                    else -> Color(0xFF03A9F4)
                 },
                 fondoIcono = when(index) {
                     0 -> Color(0xFFFCE4EC)

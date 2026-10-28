@@ -40,8 +40,12 @@ data class ResultadoBusqueda(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BuscarScreen() {
+fun BuscarScreen(
+    onNavigateBack: () -> Unit = {},
+    onNavigateToInvestigador: (String) -> Unit = {}
+) {
     var searchQuery by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("Todos") }
 
     val todosLosResultados = remember {
         listOf(
@@ -51,7 +55,7 @@ fun BuscarScreen() {
         )
     }
 
-    val resultadosFiltrados = if (searchQuery.isEmpty()) {
+    val resultadosPorTexto = if (searchQuery.isEmpty()) {
         todosLosResultados
     } else {
         todosLosResultados.filter {
@@ -61,11 +65,29 @@ fun BuscarScreen() {
         }
     }
 
+    val resultadosFinales = if (selectedCategory == "Todos") {
+        resultadosPorTexto
+    } else {
+        resultadosPorTexto.filter {
+            when (selectedCategory) {
+                "Investigadores" -> it.tipoIcono == TipoIcono.INVESTIGADOR
+                "Proyectos" -> it.tipoIcono == TipoIcono.PROYECTO
+                "Publicaciones" -> it.tipoIcono == TipoIcono.PUBLICACION
+                else -> true
+            }
+        }
+    }
+
+    val countTodos = resultadosPorTexto.size
+    val countInvestigadores = resultadosPorTexto.count { it.tipoIcono == TipoIcono.INVESTIGADOR }
+    val countProyectos = resultadosPorTexto.count { it.tipoIcono == TipoIcono.PROYECTO }
+    val countPublicaciones = resultadosPorTexto.count { it.tipoIcono == TipoIcono.PUBLICACION }
+
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             TopAppBar(
                 title = { Text("Buscar conocimiento", fontSize = 16.sp, fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = { }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver") } },
+                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver") } },
                 actions = { IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
@@ -88,7 +110,16 @@ fun BuscarScreen() {
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Filtrar resultados", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Limpiar filtros", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    "Limpiar filtros",
+                    color = Color(0xFF4A3780),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.clickable {
+                        searchQuery = ""
+                        selectedCategory = "Todos"
+                    }
+                )
             }
             Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(12.dp)) {
                 Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -101,21 +132,20 @@ fun BuscarScreen() {
                 }
             }
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Actualizamos el contador total dinámicamente
-                FilterChip(selected = true, onClick = {}, label = { Text("Todos · ${resultadosFiltrados.size}") })
-                FilterChip(selected = false, onClick = {}, label = { Text("Investigadores · 1") })
-                FilterChip(selected = false, onClick = {}, label = { Text("Proyectos · 1") })
-                FilterChip(selected = false, onClick = {}, label = { Text("Publicaciones · 1") })
+                FilterChip(selected = selectedCategory == "Todos", onClick = { selectedCategory = "Todos" }, label = { Text("Todos · $countTodos") })
+                FilterChip(selected = selectedCategory == "Investigadores", onClick = { selectedCategory = "Investigadores" }, label = { Text("Investigadores · $countInvestigadores") })
+                FilterChip(selected = selectedCategory == "Proyectos", onClick = { selectedCategory = "Proyectos" }, label = { Text("Proyectos · $countProyectos") })
+                FilterChip(selected = selectedCategory == "Publicaciones", onClick = { selectedCategory = "Publicaciones" }, label = { Text("Publicaciones · $countPublicaciones") })
             }
         }
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("${resultadosFiltrados.size} resultados", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("${resultadosFinales.size} resultados", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Text("Por relevancia", color = Color.Gray, fontSize = 12.sp)
             }
         }
 
-        if (resultadosFiltrados.isEmpty()) {
+        if (resultadosFinales.isEmpty()) {
             item {
                 Text(
                     text = "No se encontraron resultados para \"$searchQuery\"",
@@ -125,11 +155,17 @@ fun BuscarScreen() {
                 )
             }
         } else {
-            items(resultadosFiltrados) { resultado ->
+            items(resultadosFinales) { resultado ->
                 SearchResultCard(
                     tipo = resultado.tipo,
                     titulo = resultado.titulo,
-                    descripcion = resultado.descripcion
+                    descripcion = resultado.descripcion,
+                    onClick = {
+                        when (resultado.tipoIcono) {
+                            TipoIcono.INVESTIGADOR -> onNavigateToInvestigador(resultado.titulo)
+                            else -> {}
+                        }
+                    }
                 ) {
                     when (resultado.tipoIcono) {
                         TipoIcono.PROYECTO -> Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780))
@@ -147,9 +183,15 @@ fun BuscarScreen() {
 }
 
 @Composable
-fun SearchResultCard(tipo: String, titulo: String, descripcion: String, icon: @Composable () -> Unit) {
+fun SearchResultCard(
+    tipo: String,
+    titulo: String,
+    descripcion: String,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),
