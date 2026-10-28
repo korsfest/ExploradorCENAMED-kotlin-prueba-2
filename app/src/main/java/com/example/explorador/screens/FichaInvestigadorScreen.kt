@@ -29,6 +29,24 @@ fun FichaInvestigadorScreen(
     onVolver: () -> Unit,
     onProyectoClick: (String) -> Unit = {}
 ) {
+    val esConstruccion = nombreInvestigador.contains("Ana Silva") || nombreInvestigador.contains("Carlos Ruiz")
+    val esBioproductos = nombreInvestigador.contains("Luis Morales") || nombreInvestigador.contains("Sofía Valdés") || nombreInvestigador.contains("Mateo Rojas")
+    val esGestion = nombreInvestigador.contains("Gabriel Fuentes") || nombreInvestigador.contains("Marcela Parra")
+
+    val colorPrincipal = when {
+        esConstruccion -> Color(0xFFE91E63)
+        esBioproductos -> Color(0xFF4CAF50)
+        esGestion -> Color(0xFFFF9800)
+        else -> Color(0xFF03A9F4)
+    }
+
+    val colorFondoLigero = when {
+        esConstruccion -> Color(0xFFFCE4EC)
+        esBioproductos -> Color(0xFFE8F5E9)
+        esGestion -> Color(0xFFFFF3E0)
+        else -> Color(0xFFE1F5FE)
+    }
+
     val iniciales = when {
         nombreInvestigador.contains("Ana Silva") -> "AS"
         nombreInvestigador.contains("Carlos Ruiz") -> "CR"
@@ -107,13 +125,13 @@ fun FichaInvestigadorScreen(
             ) {
                 Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(56.dp).background(Color(0xFFEADDFF), CircleShape),
+                        modifier = Modifier.size(56.dp).background(colorFondoLigero, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(iniciales, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     }
                     Column(modifier = Modifier.padding(start = 16.dp)) {
-                        Text(especialidad, fontSize = 12.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                        Text(especialidad, fontSize = 12.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         Text(nombreInvestigador, fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 2.dp))
                     }
                 }
@@ -133,11 +151,11 @@ fun FichaInvestigadorScreen(
                 border = BorderStroke(1.dp, Color(0xFFE5E5E5))
             ) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(40.dp).background(Color(0xFFF3EDF7), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(20.dp))
+                    Box(modifier = Modifier.size(40.dp).background(colorFondoLigero, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Build, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(20.dp))
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                        Text(proyectoDetalle, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                        Text(proyectoDetalle, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         Text(proyectoRelacionado, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)

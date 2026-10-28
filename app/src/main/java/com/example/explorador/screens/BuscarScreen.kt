@@ -163,13 +163,13 @@ fun BuscarScreen(
                     val isSelected = selectedFilter == filter
                     Surface(
                         modifier = Modifier.clickable { selectedFilter = filter },
-                        color = if (isSelected) Color(0xFFEADDFF) else Color.Transparent,
+                        color = if (isSelected) Color(0xFFE0E7FF) else Color.Transparent,
                         shape = RoundedCornerShape(16.dp),
                         border = BorderStroke(1.dp, if (isSelected) Color.Transparent else Color.LightGray)
                     ) {
                         Text(
                             text = filter,
-                            color = if (isSelected) Color(0xFF4A3780) else Color.Gray,
+                            color = if (isSelected) Color(0xFF2563EB) else Color.Gray,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -210,6 +210,22 @@ fun BuscarScreen(
 
 @Composable
 fun SearchItemCard(item: SearchItem, onClick: () -> Unit) {
+    val colorPrincipal = when (item.linea) {
+        "Construcción Sustentable en Madera" -> Color(0xFFE91E63)
+        "Bioproductos y Biomateriales" -> Color(0xFF4CAF50)
+        "Gestión y Economía Forestal" -> Color(0xFFFF9800)
+        "Innovación en Procesos Industriales" -> Color(0xFF03A9F4)
+        else -> Color(0xFF2563EB)
+    }
+
+    val colorFondo = when (item.linea) {
+        "Construcción Sustentable en Madera" -> Color(0xFFFCE4EC)
+        "Bioproductos y Biomateriales" -> Color(0xFFE8F5E9)
+        "Gestión y Economía Forestal" -> Color(0xFFFFF3E0)
+        "Innovación en Procesos Industriales" -> Color(0xFFE1F5FE)
+        else -> Color(0xFFE0E7FF)
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -219,17 +235,17 @@ fun SearchItemCard(item: SearchItem, onClick: () -> Unit) {
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(48.dp).background(Color(0xFFF3EDF7), if (item.tipo == "INVESTIGADOR") CircleShape else RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(48.dp).background(colorFondo, if (item.tipo == "INVESTIGADOR") CircleShape else RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 when (item.tipo) {
-                    "INVESTIGADOR" -> Text(item.tag, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
-                    "PROYECTO" -> Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780))
-                    "PUBLICACIÓN" -> Icon(Icons.Outlined.Article, contentDescription = null, tint = Color(0xFF4A3780))
+                    "INVESTIGADOR" -> Text(item.tag, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                    "PROYECTO" -> Icon(Icons.Default.Build, contentDescription = null, tint = colorPrincipal)
+                    "PUBLICACIÓN" -> Icon(Icons.Outlined.Article, contentDescription = null, tint = colorPrincipal)
                 }
             }
             Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                Text(item.tipo, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(item.tipo, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                 Text(item.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
                 Text(item.subtitulo, fontSize = 13.sp, color = Color.Gray)
             }

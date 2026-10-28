@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,6 +33,24 @@ fun FichaPublicacionScreen(
     onProyectoClick: (String) -> Unit,
     onInicioClick: () -> Unit
 ) {
+    val esConstruccion = nombrePublicacion.contains("Guía de diseño", ignoreCase = true) || nombrePublicacion.contains("fuego en CLT", ignoreCase = true)
+    val esBioproductos = nombrePublicacion.contains("Caracterización", ignoreCase = true) || nombrePublicacion.contains("Nanocompuestos", ignoreCase = true) || nombrePublicacion.contains("Impacto ambiental", ignoreCase = true)
+    val esGestion = nombrePublicacion.contains("Tendencias del mercado", ignoreCase = true) || nombrePublicacion.contains("Desarrollo Local", ignoreCase = true)
+
+    val colorPrincipal = when {
+        esConstruccion -> Color(0xFFE91E63)
+        esBioproductos -> Color(0xFF4CAF50)
+        esGestion -> Color(0xFFFF9800)
+        else -> Color(0xFF03A9F4)
+    }
+
+    val colorFondoLigero = when {
+        esConstruccion -> Color(0xFFFCE4EC)
+        esBioproductos -> Color(0xFFE8F5E9)
+        esGestion -> Color(0xFFFFF3E0)
+        else -> Color(0xFFE1F5FE)
+    }
+
     val esGuia = nombrePublicacion.contains("Guía de diseño", ignoreCase = true)
     val esBiopolimeros = nombrePublicacion.contains("Caracterización de biopolímeros", ignoreCase = true)
     val esNanocompuestos = nombrePublicacion.contains("Nanocompuestos de celulosa", ignoreCase = true)
@@ -42,7 +61,7 @@ fun FichaPublicacionScreen(
     val esManufactura = nombrePublicacion.contains("Manufactura y Robótica Avanzada", ignoreCase = true)
 
     val tipo = if (esTendencias || esGuia || esDesarrolloSostenible || esAutomatizacion || esManufactura) "POLICY BRIEF" else "ARTÍCULO CIENTÍFICO"
-    val anio = "2025"
+    val anio = if (esImpactoAmbiental || nombrePublicacion.contains("fuego en CLT", ignoreCase = true)) "2024" else "2025"
 
     val titulo = when {
         esGuia -> "Guía de diseño estructural"
@@ -92,7 +111,7 @@ fun FichaPublicacionScreen(
         else -> "Análisis sísmico de uniones"
     }
 
-    val proyectoEstado = "2025 · En ejecución"
+    val proyectoEstado = if (esImpactoAmbiental || nombrePublicacion.contains("fuego en CLT", ignoreCase = true)) "2024 · Finalizado" else "2025 · En ejecución"
 
     val autorNombre = when {
         esBiopolimeros -> "Dr. Luis Morales"
@@ -146,49 +165,51 @@ fun FichaPublicacionScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF2B2042)),
+                colors = CardDefaults.cardColors(containerColor = colorFondoLigero),
                 shape = RoundedCornerShape(24.dp)
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(tipo, color = Color(0xFFD0BCFF), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text(anio, color = Color(0xFFD0BCFF), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(tipo, color = colorPrincipal, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(anio, color = colorPrincipal, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                     Text(
                         titulo,
-                        color = Color.White,
+                        color = Color(0xFF1F1A24),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 12.dp),
                         lineHeight = 32.sp
                     )
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                        Icon(Icons.Default.Book, contentDescription = null, tint = Color(0xFFD0BCFF), modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Book, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(subtitulo, color = Color(0xFFE8DEF8), fontSize = 14.sp)
+                        Text(subtitulo, color = Color.DarkGray, fontSize = 14.sp)
                     }
                 }
             }
         }
 
         item {
-            Text("Resumen", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF32224A))
+            Text("Resumen", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F1A24))
             Text(resumen, fontSize = 14.sp, color = Color.DarkGray, modifier = Modifier.padding(top = 8.dp), lineHeight = 20.sp)
-            Text("Resumen de demostración · no es un documento técnico real.", fontSize = 12.sp, color = Color(0xFF7A6B94), modifier = Modifier.padding(top = 8.dp))
+            Text("Resumen de demostración · no es un documento técnico real.", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
         }
 
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                 Text("Autoría", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("1 autor", color = Color(0xFF4A3780), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("1 autor", color = colorPrincipal, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
 
         item {
-            AutorCard(
+            AutorCardPublicacion(
                 iniciales = autorIniciales,
                 especialidad = autorEsp,
                 nombre = autorNombre,
+                colorPrincipal = colorPrincipal,
+                colorFondo = colorFondoLigero,
                 onClick = { onInvestigadorClick(autorNombre) }
             )
         }
@@ -202,11 +223,11 @@ fun FichaPublicacionScreen(
                 border = BorderStroke(1.dp, Color(0xFFE5E5E5))
             ) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(40.dp).background(Color(0xFFF3EDF7), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Book, contentDescription = null, tint = Color(0xFF4A3780), modifier = Modifier.size(20.dp))
+                    Box(modifier = Modifier.size(40.dp).background(colorFondoLigero, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Book, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(20.dp))
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                        Text(proyectoEstado, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                        Text(proyectoEstado, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         Text(proyectoRelacionado, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
@@ -217,14 +238,14 @@ fun FichaPublicacionScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth().clickable { onInicioClick() },
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
+                colors = CardDefaults.cardColors(containerColor = colorFondoLigero),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Home, contentDescription = null, tint = Color(0xFF4A3780))
+                    Icon(Icons.Default.Home, contentDescription = null, tint = colorPrincipal)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Volver al inicio", color = Color(0xFF4A3780), fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF4A3780))
+                    Text("Volver al inicio", color = colorPrincipal, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colorPrincipal)
                 }
             }
         }
@@ -240,7 +261,7 @@ fun FichaPublicacionScreen(
 }
 
 @Composable
-fun AutorCard(iniciales: String, especialidad: String, nombre: String, onClick: () -> Unit) {
+private fun AutorCardPublicacion(iniciales: String, especialidad: String, nombre: String, colorPrincipal: Color, colorFondo: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -250,13 +271,13 @@ fun AutorCard(iniciales: String, especialidad: String, nombre: String, onClick: 
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(48.dp).background(Color(0xFFEADDFF), CircleShape),
+                modifier = Modifier.size(48.dp).background(colorFondo, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(iniciales, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold)
             }
             Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
-                Text(especialidad, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)

@@ -40,6 +40,20 @@ fun DetalleLineaScreen(
     val esBioproductos = linea.titulo.contains("Bioproductos", ignoreCase = true)
     val esGestion = linea.titulo.contains("Gestión", ignoreCase = true)
 
+    val colorPrincipal = when {
+        esConstruccion -> Color(0xFFE91E63)
+        esBioproductos -> Color(0xFF4CAF50)
+        esGestion -> Color(0xFFFF9800)
+        else -> Color(0xFF03A9F4)
+    }
+
+    val colorFondoLigero = when {
+        esConstruccion -> Color(0xFFFCE4EC)
+        esBioproductos -> Color(0xFFE8F5E9)
+        esGestion -> Color(0xFFFFF3E0)
+        else -> Color(0xFFE1F5FE)
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -66,7 +80,7 @@ fun DetalleLineaScreen(
                     esGestion -> "ECONOMÍA Y TERRITORIO"
                     else -> "TECNOLOGÍA Y MANUFACTURA"
                 },
-                color = Color(0xFF4A3780),
+                color = colorPrincipal,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -77,11 +91,11 @@ fun DetalleLineaScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)),
+                colors = CardDefaults.cardColors(containerColor = colorFondoLigero),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(40.dp).background(Color(0xFFEADDFF), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
                         Icon(
                             when {
                                 esConstruccion -> Icons.Default.Build
@@ -90,12 +104,12 @@ fun DetalleLineaScreen(
                                 else -> Icons.Default.Factory
                             },
                             contentDescription = null,
-                            tint = Color(0xFF4A3780),
+                            tint = colorPrincipal,
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                        Text(linea.titulo, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF4A3780))
+                        Text(linea.titulo, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = colorPrincipal)
                         Text(
                             when {
                                 esConstruccion -> "2 investigadores · 2 proyectos"
@@ -104,7 +118,7 @@ fun DetalleLineaScreen(
                                 else -> "2 investigadores · 1 proyecto"
                             },
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = Color.DarkGray
                         )
                     }
                 }
@@ -120,7 +134,7 @@ fun DetalleLineaScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Esta línea en la muestra", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF32224A))
+                        Text("Esta línea en la muestra", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1F1A24))
                         Text("Datos sintéticos", fontSize = 12.sp, color = Color.Gray)
                     }
                     Row(
@@ -130,16 +144,22 @@ fun DetalleLineaScreen(
                         MetricBox(
                             valor = if (esConstruccion || esGestion || !esBioproductos) "2" else "3",
                             label = "Investigadores",
+                            colorFondo = colorFondoLigero,
+                            colorTexto = colorPrincipal,
                             onClick = onVerInvestigadores
                         )
                         MetricBox(
                             valor = if (esConstruccion) "2" else "1",
                             label = "Proyectos",
+                            colorFondo = colorFondoLigero,
+                            colorTexto = colorPrincipal,
                             onClick = onVerProyectos
                         )
                         MetricBox(
                             valor = if (esConstruccion) "2" else "1",
                             label = "Publicaciones",
+                            colorFondo = colorFondoLigero,
+                            colorTexto = colorPrincipal,
                             onClick = onVerPublicaciones
                         )
                     }
@@ -160,7 +180,7 @@ fun DetalleLineaScreen(
                         esBioproductos -> "3 investigadores"
                         else -> "2 investigadores"
                     },
-                    color = Color(0xFF4A3780),
+                    color = colorPrincipal,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -169,21 +189,21 @@ fun DetalleLineaScreen(
 
         when {
             esConstruccion -> {
-                item { InvestigadorCardMini("AS", "Ingeniería Estructural", "Dra. Ana Silva", "Diseño y evaluación de sistemas modulares de madera para vivienda.", onClick = { onInvestigadorClick("Dra. Ana Silva") }) }
-                item { InvestigadorCardMini("CR", "Arquitectura Sustentable", "Dr. Carlos Ruiz", "Investiga el desempeño sísmico y la seguridad de soluciones constructivas en madera.", onClick = { onInvestigadorClick("Dr. Carlos Ruiz") }) }
+                item { InvestigadorCardMini("AS", "Ingeniería Estructural", "Dra. Ana Silva", "Diseño y evaluación de sistemas modulares de madera para vivienda.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dra. Ana Silva") }) }
+                item { InvestigadorCardMini("CR", "Arquitectura Sustentable", "Dr. Carlos Ruiz", "Investiga el desempeño sísmico y la seguridad de soluciones constructivas en madera.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dr. Carlos Ruiz") }) }
             }
             esBioproductos -> {
-                item { InvestigadorCardMini("LM", "Química de Materiales", "Dr. Luis Morales", "Explora la transformación de componentes de la madera en materiales de origen biológico.", onClick = { onInvestigadorClick("Dr. Luis Morales") }) }
-                item { InvestigadorCardMini("SV", "Nanotecnología de la Madera", "Dra. Sofía Valdés", "Investigación sobre celulosa nanofibrilada para aplicaciones de alta resistencia.", onClick = { onInvestigadorClick("Dra. Sofía Valdés") }) }
-                item { InvestigadorCardMini("MR", "Gestión Ambiental", "Dr. Mateo Rojas", "Análisis de huella de carbono y sostenibilidad en procesos de construcción.", onClick = { onInvestigadorClick("Dr. Mateo Rojas") }) }
+                item { InvestigadorCardMini("LM", "Química de Materiales", "Dr. Luis Morales", "Explora la transformación de componentes de la madera en materiales de origen biológico.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dr. Luis Morales") }) }
+                item { InvestigadorCardMini("SV", "Nanotecnología de la Madera", "Dra. Sofía Valdés", "Investigación sobre celulosa nanofibrilada para aplicaciones de alta resistencia.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dra. Sofía Valdés") }) }
+                item { InvestigadorCardMini("MR", "Gestión Ambiental", "Dr. Mateo Rojas", "Análisis de huella de carbono y sostenibilidad en procesos de construcción.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dr. Mateo Rojas") }) }
             }
             esGestion -> {
-                item { InvestigadorCardMini("GF", "Economía Forestal", "Dr. Gabriel Fuentes", "Análisis de cadenas de valor y mercados internacionales de productos madereros.", onClick = { onInvestigadorClick("Dr. Gabriel Fuentes") }) }
-                item { InvestigadorCardMini("MP", "Sostenibilidad Territorial", "Dra. Marcela Parra", "Evaluación de impacto socioeconómico en territorios forestales.", onClick = { onInvestigadorClick("Dra. Marcela Parra") }) }
+                item { InvestigadorCardMini("GF", "Economía Forestal", "Dr. Gabriel Fuentes", "Análisis de cadenas de valor y mercados internacionales de productos madereros.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dr. Gabriel Fuentes") }) }
+                item { InvestigadorCardMini("MP", "Sostenibilidad Territorial", "Dra. Marcela Parra", "Evaluación de impacto socioeconómico en territorios forestales.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dra. Marcela Parra") }) }
             }
             else -> {
-                item { InvestigadorCardMini("IB", "Automatización Industrial", "Dr. Ignacio Becker", "Implementación de sistemas robóticos en la línea de producción de madera.", onClick = { onInvestigadorClick("Dr. Ignacio Becker") }) }
-                item { InvestigadorCardMini("VS", "Manufactura Avanzada", "Dra. Valentina Soto", "Optimización de procesos de transformación industrial con control numérico.", onClick = { onInvestigadorClick("Dra. Valentina Soto") }) }
+                item { InvestigadorCardMini("IB", "Automatización Industrial", "Dr. Ignacio Becker", "Implementación de sistemas robóticos en la línea de producción de madera.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dr. Ignacio Becker") }) }
+                item { InvestigadorCardMini("VS", "Manufactura Avanzada", "Dra. Valentina Soto", "Optimización de procesos de transformación industrial con control numérico.", colorPrincipal, colorFondoLigero, onClick = { onInvestigadorClick("Dra. Valentina Soto") }) }
             }
         }
 
@@ -198,24 +218,24 @@ fun DetalleLineaScreen(
 }
 
 @Composable
-fun MetricBox(valor: String, label: String, onClick: () -> Unit) {
+fun MetricBox(valor: String, label: String, colorFondo: Color, colorTexto: Color, onClick: () -> Unit) {
     Surface(
         modifier = Modifier.width(100.dp).clickable { onClick() },
-        color = Color(0xFFF8F4FA),
+        color = colorFondo,
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(valor, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color(0xFF4A3780))
-            Text(label, fontSize = 11.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
+            Text(valor, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = colorTexto)
+            Text(label, fontSize = 11.sp, color = Color.DarkGray, modifier = Modifier.padding(top = 2.dp))
         }
     }
 }
 
 @Composable
-fun InvestigadorCardMini(iniciales: String, especialidad: String, nombre: String, descripcion: String, onClick: () -> Unit) {
+fun InvestigadorCardMini(iniciales: String, especialidad: String, nombre: String, descripcion: String, colorPrincipal: Color, colorFondo: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -225,13 +245,13 @@ fun InvestigadorCardMini(iniciales: String, especialidad: String, nombre: String
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(48.dp).background(Color(0xFFEADDFF), CircleShape),
+                modifier = Modifier.size(48.dp).background(colorFondo, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(iniciales, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold)
             }
             Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
-                Text(especialidad, fontSize = 10.sp, color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                Text(especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
                 Text(descripcion, fontSize = 13.sp, color = Color.DarkGray, maxLines = 2)
             }

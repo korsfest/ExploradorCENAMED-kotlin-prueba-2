@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Factory
 import androidx.compose.material.icons.filled.Forest
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
@@ -27,7 +27,7 @@ import com.example.explorador.model.LineaInvestigacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit, onSearchClick: () -> Unit = {}) {
+fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
     val lineas = listOf(
         LineaInvestigacion(
             id = "1",
@@ -85,7 +85,7 @@ fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit, on
                     }
                     Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
                 }
-                IconButton(onClick = onSearchClick) {
+                IconButton(onClick = {}) {
                     Icon(Icons.Outlined.Search, contentDescription = "Buscar", tint = Color(0xFF1F1A24))
                 }
             }
