@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,10 +28,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+enum class TipoIcono { PROYECTO, INVESTIGADOR, PUBLICACION }
+
+data class ResultadoBusqueda(
+    val tipo: String,
+    val titulo: String,
+    val descripcion: String,
+    val tipoIcono: TipoIcono,
+    val iniciales: String? = null
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuscarScreen() {
-    var searchQuery by remember { mutableStateOf("modular") }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val todosLosResultados = remember {
+        listOf(
+            ResultadoBusqueda("PROYECTO · 2025 · En ejecución", "Prototipo de vivienda modular", "Coincidencia en el título", TipoIcono.PROYECTO),
+            ResultadoBusqueda("INVESTIGADORA · Ingeniería Estructural", "Dra. Ana Silva", "Responsable del proyecto de vivienda modular", TipoIcono.INVESTIGADOR, "AS"),
+            ResultadoBusqueda("PUBLICACIÓN · Policy Brief", "Guía de diseño estructural", "Relacionada con el prototipo modular", TipoIcono.PUBLICACION)
+        )
+    }
+
+    val resultadosFiltrados = if (searchQuery.isEmpty()) {
+        todosLosResultados
+    } else {
+        todosLosResultados.filter {
+            it.titulo.contains(searchQuery, ignoreCase = true) ||
+                    it.descripcion.contains(searchQuery, ignoreCase = true) ||
+                    it.tipo.contains(searchQuery, ignoreCase = true)
+        }
+    }
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
@@ -72,7 +101,8 @@ fun BuscarScreen() {
                 }
             }
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = true, onClick = {}, label = { Text("Todos · 3") })
+                // Actualizamos el contador total dinámicamente
+                FilterChip(selected = true, onClick = {}, label = { Text("Todos · ${resultadosFiltrados.size}") })
                 FilterChip(selected = false, onClick = {}, label = { Text("Investigadores · 1") })
                 FilterChip(selected = false, onClick = {}, label = { Text("Proyectos · 1") })
                 FilterChip(selected = false, onClick = {}, label = { Text("Publicaciones · 1") })
@@ -80,17 +110,38 @@ fun BuscarScreen() {
         }
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("3 resultados", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("${resultadosFiltrados.size} resultados", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Text("Por relevancia", color = Color.Gray, fontSize = 12.sp)
             }
         }
-        item { SearchResultCard("PROYECTO · 2025 · En ejecución", "Prototipo de vivienda modular", "Coincidencia en el título") { Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780)) } }
-        item {
-            SearchResultCard("INVESTIGADORA · Ingeniería Estructural", "Dra. Ana Silva", "Responsable del proyecto de vivienda modular") {
-                Box(modifier = Modifier.size(40.dp).background(Color(0xFFEADDFF), CircleShape), contentAlignment = Alignment.Center) { Text("AS", color = Color(0xFF4A3780), fontWeight = FontWeight.Bold) }
+
+        if (resultadosFiltrados.isEmpty()) {
+            item {
+                Text(
+                    text = "No se encontraron resultados para \"$searchQuery\"",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        } else {
+            items(resultadosFiltrados) { resultado ->
+                SearchResultCard(
+                    tipo = resultado.tipo,
+                    titulo = resultado.titulo,
+                    descripcion = resultado.descripcion
+                ) {
+                    when (resultado.tipoIcono) {
+                        TipoIcono.PROYECTO -> Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF4A3780))
+                        TipoIcono.INVESTIGADOR -> Box(modifier = Modifier.size(40.dp).background(Color(0xFFEADDFF), CircleShape), contentAlignment = Alignment.Center) {
+                            Text(resultado.iniciales ?: "", color = Color(0xFF4A3780), fontWeight = FontWeight.Bold)
+                        }
+                        TipoIcono.PUBLICACION -> Icon(Icons.Outlined.Article, contentDescription = null, tint = Color(0xFF4A3780))
+                    }
+                }
             }
         }
-        item { SearchResultCard("PUBLICACIÓN · Policy Brief", "Guía de diseño estructural", "Relacionada con el prototipo modular") { Icon(Icons.Outlined.Article, contentDescription = null, tint = Color(0xFF4A3780)) } }
+
         item { Spacer(modifier = Modifier.height(30.dp)) }
     }
 }
