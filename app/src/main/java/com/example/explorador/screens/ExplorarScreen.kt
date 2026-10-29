@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Factory
 import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -84,9 +83,6 @@ fun ExplorarScreen(email: String, onLineaClick: (LineaInvestigacion) -> Unit) {
                         Text("¡Bienvenido, $email!", fontSize = 14.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
                     }
                     Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Outlined.Search, contentDescription = "Buscar", tint = Color(0xFF1F1A24))
                 }
             }
         }
