@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,6 +62,12 @@ class MainActivity : ComponentActivity() {
                                         selected = pestañaActual == "buscar",
                                         onClick = { pestañaActual = "buscar" }
                                     )
+                                    NavigationBarItem(
+                                        icon = { Icon(Icons.Outlined.Map, contentDescription = "Info") },
+                                        label = { Text("Info") },
+                                        selected = pestañaActual == "info",
+                                        onClick = { pestañaActual = "info" }
+                                    )
                                 }
                             }
                         }
@@ -76,8 +83,11 @@ class MainActivity : ComponentActivity() {
                                 viendoFichaProyecto = false
                                 viendoFichaPublicacion = false
                                 investigadorSeleccionado = null
+
                                 if (pestañaActual == "explorar") {
                                     ExplorarScreen(email = userEmail, onLineaClick = { linea -> lineaSeleccionada = linea })
+                                } else if (pestañaActual == "info") {
+                                    InfoScreen()
                                 } else {
                                     BuscarScreen(
                                         onInvestigadorClick = { nombre ->
