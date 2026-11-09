@@ -10,172 +10,113 @@ import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.example.explorador.model.LineaInvestigacion
-import com.example.explorador.screens.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.explorador.ui.screens.*
+import com.example.explorador.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme(
-                colorScheme = lightColorScheme(
-                    primary = Color(0xFF2563EB),
-                    background = Color(0xFFF8F9FA)
-                )
+                colorScheme = lightColorScheme(primary = Color(0xFF2563EB), background = Color(0xFFF8F9FA))
             ) {
-                var pestañaActual by remember { mutableStateOf("login") }
-                var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
-                var viendoInvestigadores by remember { mutableStateOf(false) }
-                var viendoProyectos by remember { mutableStateOf(false) }
-                var viendoPublicaciones by remember { mutableStateOf(false) }
-                var investigadorSeleccionado by remember { mutableStateOf<String?>(null) }
-                var viendoFichaProyecto by remember { mutableStateOf(false) }
-                var proyectoSeleccionado by remember { mutableStateOf("Prototipo de vivienda modular") }
-                var viendoFichaPublicacion by remember { mutableStateOf(false) }
-                var publicacionSeleccionada by remember { mutableStateOf("Guía de diseño estructural") }
-                var userEmail by remember { mutableStateOf("") }
+                val viewModel: MainViewModel = viewModel()
 
-                if (pestañaActual == "login") {
+                if (viewModel.pestañaActual == "login") {
                     LoginScreen(
-                        onLoginSuccess = { emailIngresado ->
-                            userEmail = emailIngresado
-                            pestañaActual = "explorar"
-                        }
+                        onLoginSuccess = { emailIngresado -> viewModel.onLoginSuccess(emailIngresado) }
                     )
                 } else {
                     Scaffold(
                         bottomBar = {
-                            if (lineaSeleccionada == null) {
+                            if (viewModel.lineaSeleccionada == null && !viewModel.viendoFichaProyecto && !viewModel.viendoFichaPublicacion && viewModel.investigadorSeleccionado == null) {
                                 NavigationBar(containerColor = Color.White) {
                                     NavigationBarItem(
                                         icon = { Icon(Icons.Outlined.Explore, contentDescription = "Explorar") },
                                         label = { Text("Explorar") },
-                                        selected = pestañaActual == "explorar",
-                                        onClick = { pestañaActual = "explorar" }
+                                        selected = viewModel.pestañaActual == "explorar",
+                                        onClick = { viewModel.cambiarPestaña("explorar") }
                                     )
                                     NavigationBarItem(
                                         icon = { Icon(Icons.Outlined.Search, contentDescription = "Buscar") },
                                         label = { Text("Buscar") },
-                                        selected = pestañaActual == "buscar",
-                                        onClick = { pestañaActual = "buscar" }
+                                        selected = viewModel.pestañaActual == "buscar",
+                                        onClick = { viewModel.cambiarPestaña("buscar") }
                                     )
                                     NavigationBarItem(
                                         icon = { Icon(Icons.Outlined.Map, contentDescription = "Info") },
                                         label = { Text("Info") },
-                                        selected = pestañaActual == "info",
-                                        onClick = { pestañaActual = "info" }
+                                        selected = viewModel.pestañaActual == "info",
+                                        onClick = { viewModel.cambiarPestaña("info") }
                                     )
                                 }
                             }
                         }
                     ) { padding ->
-                        Surface(
-                            modifier = Modifier.fillMaxSize().padding(padding),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            if (lineaSeleccionada == null) {
-                                viendoInvestigadores = false
-                                viendoProyectos = false
-                                viendoPublicaciones = false
-                                viendoFichaProyecto = false
-                                viendoFichaPublicacion = false
-                                investigadorSeleccionado = null
-
-                                if (pestañaActual == "explorar") {
-                                    ExplorarScreen(email = userEmail, onLineaClick = { linea -> lineaSeleccionada = linea })
-                                } else if (pestañaActual == "info") {
+                        Surface(modifier = Modifier.fillMaxSize().padding(padding), color = MaterialTheme.colorScheme.background) {
+                            if (viewModel.lineaSeleccionada == null) {
+                                if (viewModel.pestañaActual == "explorar") {
+                                    ExplorarScreen(
+                                        email = viewModel.userEmail,
+                                        onLineaClick = { linea -> viewModel.seleccionarLinea(linea) }
+                                    )
+                                } else if (viewModel.pestañaActual == "info") {
                                     InfoScreen()
                                 } else {
                                     BuscarScreen(
-                                        onInvestigadorClick = { nombre ->
-                                            investigadorSeleccionado = nombre
-                                            lineaSeleccionada = LineaInvestigacion("0", "Búsqueda", "", emptyList(), emptyList(), emptyList())
-                                        },
-                                        onProyectoClick = { titulo ->
-                                            proyectoSeleccionado = titulo
-                                            viendoFichaProyecto = true
-                                            lineaSeleccionada = LineaInvestigacion("0", "Búsqueda", "", emptyList(), emptyList(), emptyList())
-                                        },
-                                        onPublicacionClick = { titulo ->
-                                            publicacionSeleccionada = titulo
-                                            viendoFichaPublicacion = true
-                                            lineaSeleccionada = LineaInvestigacion("0", "Búsqueda", "", emptyList(), emptyList(), emptyList())
-                                        }
+                                        onInvestigadorClick = { nombre -> viewModel.seleccionarInvestigadorEnBusqueda(nombre) },
+                                        onProyectoClick = { titulo -> viewModel.seleccionarProyectoEnBusqueda(titulo) },
+                                        onPublicacionClick = { titulo -> viewModel.seleccionarPublicacionEnBusqueda(titulo) }
                                     )
                                 }
                             } else {
-                                if (viendoFichaPublicacion) {
+                                if (viewModel.viendoFichaPublicacion) {
                                     FichaPublicacionScreen(
-                                        nombrePublicacion = publicacionSeleccionada,
-                                        onVolver = { viendoFichaPublicacion = false },
-                                        onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre },
-                                        onProyectoClick = { proj ->
-                                            proyectoSeleccionado = proj
-                                            viendoFichaPublicacion = false
-                                            viendoFichaProyecto = true
-                                        },
-                                        onInicioClick = {
-                                            lineaSeleccionada = null
-                                            viendoFichaPublicacion = false
-                                            viendoFichaProyecto = false
-                                            investigadorSeleccionado = null
-                                            viendoInvestigadores = false
-                                            viendoProyectos = false
-                                            viendoPublicaciones = false
-                                        }
+                                        nombrePublicacion = viewModel.publicacionSeleccionada,
+                                        onVolver = { viewModel.volverDeFichaPublicacion() },
+                                        onInvestigadorClick = { nombre -> viewModel.seleccionarInvestigador(nombre) },
+                                        onProyectoClick = { proj -> viewModel.navegarDePublicacionAProyecto(proj) },
+                                        onInicioClick = { viewModel.irAInicio() }
                                     )
-                                } else if (viendoFichaProyecto) {
+                                } else if (viewModel.viendoFichaProyecto) {
                                     FichaProyectoScreen(
-                                        nombreProyecto = proyectoSeleccionado,
-                                        onVolver = { viendoFichaProyecto = false },
-                                        onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre },
-                                        onPublicacionClick = { pub ->
-                                            publicacionSeleccionada = pub
-                                            viendoFichaProyecto = false
-                                            viendoFichaPublicacion = true
-                                        }
+                                        nombreProyecto = viewModel.proyectoSeleccionado,
+                                        onVolver = { viewModel.volverDeFichaProyecto() },
+                                        onInvestigadorClick = { nombre -> viewModel.seleccionarInvestigador(nombre) },
+                                        onPublicacionClick = { pub -> viewModel.navegarDeProyectoAPublicacion(pub) }
                                     )
-                                } else if (investigadorSeleccionado != null) {
+                                } else if (viewModel.investigadorSeleccionado != null) {
                                     FichaInvestigadorScreen(
-                                        nombreInvestigador = investigadorSeleccionado!!,
-                                        onVolver = { investigadorSeleccionado = null },
-                                        onProyectoClick = { proj ->
-                                            proyectoSeleccionado = proj
-                                            viendoFichaProyecto = true
-                                        }
+                                        nombreInvestigador = viewModel.investigadorSeleccionado!!,
+                                        onVolver = { viewModel.seleccionarInvestigador(null) },
+                                        onProyectoClick = { proj -> viewModel.seleccionarProyecto(proj) }
                                     )
-                                } else if (viendoInvestigadores) {
+                                } else if (viewModel.viendoInvestigadores) {
                                     InvestigadoresScreen(
-                                        onVolver = { viendoInvestigadores = false },
-                                        onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
+                                        onVolver = { viewModel.actualizarViendoInvestigadores(false) },
+                                        onInvestigadorClick = { nombre -> viewModel.seleccionarInvestigador(nombre) }
                                     )
-                                } else if (viendoProyectos) {
+                                } else if (viewModel.viendoProyectos) {
                                     ProyectosScreen(
-                                        onVolver = { viendoProyectos = false },
-                                        onVerProyecto = { proj ->
-                                            proyectoSeleccionado = proj
-                                            viendoFichaProyecto = true
-                                        }
+                                        onVolver = { viewModel.actualizarViendoProyectos(false) },
+                                        onVerProyecto = { proj -> viewModel.seleccionarProyecto(proj) }
                                     )
-                                } else if (viendoPublicaciones) {
+                                } else if (viewModel.viendoPublicaciones) {
                                     PublicacionesScreen(
-                                        onVolver = { viendoPublicaciones = false },
-                                        onVerPublicacion = { pub ->
-                                            publicacionSeleccionada = pub
-                                            viendoFichaPublicacion = true
-                                        }
+                                        onVolver = { viewModel.actualizarViendoPublicaciones(false) },
+                                        onVerPublicacion = { pub -> viewModel.seleccionarPublicacion(pub) }
                                     )
                                 } else {
                                     DetalleLineaScreen(
-                                        linea = lineaSeleccionada!!,
-                                        onVolver = { lineaSeleccionada = null },
-                                        onVerInvestigadores = { viendoInvestigadores = true },
-                                        onVerProyectos = { viendoProyectos = true },
-                                        onVerPublicaciones = { viendoPublicaciones = true },
-                                        onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
+                                        linea = viewModel.lineaSeleccionada!!,
+                                        onVolver = { viewModel.seleccionarLinea(null) },
+                                        onVerInvestigadores = { viewModel.actualizarViendoInvestigadores(true) },
+                                        onVerProyectos = { viewModel.actualizarViendoProyectos(true) },
+                                        onVerPublicaciones = { viewModel.actualizarViendoPublicaciones(true) },
+                                        onInvestigadorClick = { nombre -> viewModel.seleccionarInvestigador(nombre) }
                                     )
                                 }
                             }
