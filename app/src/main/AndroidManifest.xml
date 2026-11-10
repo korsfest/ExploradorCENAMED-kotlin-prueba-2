@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Explorador">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD8_9x2f8ZqK6v8W1v2Z9x8Y7t6R5q4P3" />
 
         <activity
             android:name=".MainActivity"
@@ -28,3 +31,6 @@
         </activity>
     </application>
 </manifest>
+
+
+<!--BORRAR ESTE COMENTARIO CUANDO SE ARREGLE EL MAPA XDDDDDDD (NO FUNCIONÓ)
