@@ -13,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.explorador.model.LineaInvestigacion
+import com.example.explorador.repository.SessionManager
 import com.example.explorador.view.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
@@ -28,10 +30,14 @@ class MainActivity : ComponentActivity() {
                     background = Color(0xFFF8F9FA)
                 )
             ) {
+                val context = LocalContext.current
+                val sessionManager = remember { SessionManager(context) }
+                val sesionGuardada = remember { sessionManager.obtenerSesionActiva() }
+
                 // Instancia única del ViewModel compartido para toda la app (MVVM)
                 val exploradorViewModel: ExploradorViewModel = viewModel()
 
-                var pestañaActual by remember { mutableStateOf("login") }
+                var pestañaActual by remember { mutableStateOf(if (sesionGuardada != null) "explorar" else "login") }
                 var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
                 var viendoInvestigadores by remember { mutableStateOf(false) }
                 var viendoProyectos by remember { mutableStateOf(false) }
@@ -41,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 var proyectoSeleccionado by remember { mutableStateOf("") }
                 var viendoFichaPublicacion by remember { mutableStateOf(false) }
                 var publicacionSeleccionada by remember { mutableStateOf("") }
-                var userEmail by remember { mutableStateOf("") }
+                var userEmail by remember { mutableStateOf(sesionGuardada ?: "") }
 
                 if (pestañaActual == "login") {
                     LoginScreen(
@@ -100,7 +106,14 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
                                     "info" -> {
-                                        InfoScreen()
+                                        InfoScreen(
+                                            userEmail = userEmail,
+                                            onCerrarSesion = {
+                                                sessionManager.cerrarSesion()
+                                                userEmail = ""
+                                                pestañaActual = "login"
+                                            }
+                                        )
                                     }
                                     else -> {
                                         BuscarScreen(

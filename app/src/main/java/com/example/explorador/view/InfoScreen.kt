@@ -7,6 +7,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +19,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
-fun InfoScreen() {
+fun InfoScreen(
+    userEmail: String = "",
+    onCerrarSesion: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,6 +97,36 @@ fun InfoScreen() {
 
                     view.loadDataWithBaseURL(null, mapHtml, "text/html", "UTF-8", null)
                 }
+            )
+        }
+
+        if (userEmail.isNotBlank()) {
+            Text(
+                text = "Sesión activa: $userEmail",
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
+        }
+
+        Button(
+            onClick = onCerrarSesion,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Logout,
+                contentDescription = "Cerrar Sesión",
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Cerrar Sesión",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
         }
     }
