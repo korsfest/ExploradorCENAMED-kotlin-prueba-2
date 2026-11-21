@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.explorador.model.LineaInvestigacion
+import com.example.explorador.ui.theme.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,23 +44,25 @@ fun DetalleLineaScreen(
     val publicaciones by viewModel.publicaciones.collectAsState()
 
     val invDeLinea = investigadores.filter { it.lineaNombre.equals(linea.titulo, ignoreCase = true) }
+    val projDeLinea = proyectos.filter { it.lineaNombre.equals(linea.titulo, ignoreCase = true) }
+    val pubDeLinea = publicaciones.filter { it.lineaNombre.equals(linea.titulo, ignoreCase = true) }
 
     val esConstruccion = linea.titulo.contains("Construcción", ignoreCase = true)
     val esBioproductos = linea.titulo.contains("Bioproductos", ignoreCase = true)
     val esGestion = linea.titulo.contains("Gestión", ignoreCase = true)
 
     val colorPrincipal = when {
-        esConstruccion -> Color(0xFFE91E63)
-        esBioproductos -> Color(0xFF4CAF50)
-        esGestion -> Color(0xFFFF9800)
-        else -> Color(0xFF03A9F4)
+        esConstruccion -> RosaLinea
+        esBioproductos -> VerdeLinea
+        esGestion -> NaranjaLinea
+        else -> CelesteLinea
     }
 
     val colorFondoLigero = when {
-        esConstruccion -> Color(0xFFFCE4EC)
-        esBioproductos -> Color(0xFFE8F5E9)
-        esGestion -> Color(0xFFFFF3E0)
-        else -> Color(0xFFE1F5FE)
+        esConstruccion -> RosaLineaFondo
+        esBioproductos -> VerdeLineaFondo
+        esGestion -> NaranjaLineaFondo
+        else -> CelesteLineaFondo
     }
 
     LazyColumn(
@@ -76,24 +79,26 @@ fun DetalleLineaScreen(
                 actions = {
                     IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Transparente)
             )
         }
 
         item {
             Text(
-                when {
-                    esConstruccion -> "CONSTRUCCIÓN SUSTENTABLE"
-                    esBioproductos -> "BIOMATERIALES Y CIRCULARIDAD"
-                    esGestion -> "ECONOMÍA Y TERRITORIO"
-                    else -> "TECNOLOGÍA Y MANUFACTURA"
+                linea.tag.ifEmpty {
+                    when {
+                        esConstruccion -> "CONSTRUCCIÓN SUSTENTABLE"
+                        esBioproductos -> "BIOMATERIALES Y CIRCULARIDAD"
+                        esGestion -> "ECONOMÍA Y TERRITORIO"
+                        else -> "TECNOLOGÍA Y MANUFACTURA"
+                    }
                 },
                 color = colorPrincipal,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(linea.titulo, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp), lineHeight = 32.sp)
-            Text(linea.descripcion, color = Color.Gray, fontSize = 16.sp)
+            Text(linea.descripcion, color = GrisTexto, fontSize = 16.sp)
         }
 
         item {
@@ -103,7 +108,7 @@ fun DetalleLineaScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.size(40.dp).background(Blanco, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
                         Icon(
                             when {
                                 esConstruccion -> Icons.Default.Build
@@ -118,7 +123,7 @@ fun DetalleLineaScreen(
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(linea.titulo, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = colorPrincipal)
-                        Text(linea.detalle.ifEmpty { "${invDeLinea.size} investigadores" }, fontSize = 12.sp, color = Color.DarkGray)
+                        Text("${invDeLinea.size} investigadores · ${projDeLinea.size} proyectos", fontSize = 12.sp, color = GrisOscuro)
                     }
                 }
             }
@@ -127,35 +132,35 @@ fun DetalleLineaScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = Blanco),
                 shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                border = BorderStroke(1.dp, BordeTarjeta)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Esta línea en CENAMAD", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1F1A24))
-                        Text("Datos API", fontSize = 12.sp, color = Color.Gray)
+                        Text("Esta línea en CENAMAD", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextoOscuro)
+                        Text("Explora por tipo", fontSize = 12.sp, color = GrisTexto)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         MetricBox(
-                            valor = "${investigadores.size}",
+                            valor = "${invDeLinea.size}",
                             label = "Investigadores",
                             colorFondo = colorFondoLigero,
                             colorTexto = colorPrincipal,
                             onClick = onVerInvestigadores
                         )
                         MetricBox(
-                            valor = "${proyectos.size}",
+                            valor = "${projDeLinea.size}",
                             label = "Proyectos",
                             colorFondo = colorFondoLigero,
                             colorTexto = colorPrincipal,
                             onClick = onVerProyectos
                         )
                         MetricBox(
-                            valor = "${publicaciones.size}",
+                            valor = "${pubDeLinea.size}",
                             label = "Publicaciones",
                             colorFondo = colorFondoLigero,
                             colorTexto = colorPrincipal,
@@ -183,9 +188,9 @@ fun DetalleLineaScreen(
             }
             Card(
                 modifier = Modifier.fillMaxWidth().clickable { onInvestigadorClick(inv.nombre) },
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = Blanco),
                 shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                border = BorderStroke(1.dp, BordeTarjeta)
             ) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(44.dp).background(colorFondoLigero, CircleShape), contentAlignment = Alignment.Center) {
@@ -193,9 +198,9 @@ fun DetalleLineaScreen(
                     }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(inv.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        Text(inv.especialidad, fontSize = 12.sp, color = Color.Gray)
+                        Text(inv.bio.ifEmpty { inv.especialidad }, fontSize = 12.sp, color = GrisTexto)
                     }
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
                 }
             }
         }
@@ -230,7 +235,7 @@ fun MetricBox(
             Text(
                 text = label,
                 fontSize = 11.sp,
-                color = Color.DarkGray,
+                color = GrisOscuro,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }

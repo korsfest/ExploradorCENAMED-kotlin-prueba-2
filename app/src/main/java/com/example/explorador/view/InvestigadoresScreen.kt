@@ -16,22 +16,28 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.explorador.ui.theme.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigadoresScreen(
     viewModel: ExploradorViewModel,
+    lineaFiltro: String? = null,
     onVolver: () -> Unit,
     onInvestigadorClick: (String) -> Unit
 ) {
-    val investigadores by viewModel.investigadores.collectAsState()
+    val todos by viewModel.investigadores.collectAsState()
+    val investigadores = if (!lineaFiltro.isNullOrBlank() && lineaFiltro != "Búsqueda") {
+        todos.filter { it.lineaNombre.equals(lineaFiltro, ignoreCase = true) }
+    } else {
+        todos
+    }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
+    Column(modifier = Modifier.fillMaxSize().background(FondoApp)) {
         TopAppBar(
             title = { Text("Investigadores", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             navigationIcon = {
@@ -40,7 +46,7 @@ fun InvestigadoresScreen(
             actions = {
                 IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Blanco)
         )
 
         LazyColumn(
@@ -53,17 +59,17 @@ fun InvestigadoresScreen(
                 val esGestion = inv.lineaNombre.contains("Gestión", ignoreCase = true)
 
                 val colorPrincipal = when {
-                    esConstruccion -> Color(0xFFE91E63)
-                    esBioproductos -> Color(0xFF4CAF50)
-                    esGestion -> Color(0xFFFF9800)
-                    else -> Color(0xFF03A9F4)
+                    esConstruccion -> RosaLinea
+                    esBioproductos -> VerdeLinea
+                    esGestion -> NaranjaLinea
+                    else -> CelesteLinea
                 }
 
                 val colorFondoLigero = when {
-                    esConstruccion -> Color(0xFFFCE4EC)
-                    esBioproductos -> Color(0xFFE8F5E9)
-                    esGestion -> Color(0xFFFFF3E0)
-                    else -> Color(0xFFE1F5FE)
+                    esConstruccion -> RosaLineaFondo
+                    esBioproductos -> VerdeLineaFondo
+                    esGestion -> NaranjaLineaFondo
+                    else -> CelesteLineaFondo
                 }
 
                 val iniciales = inv.nombre.split(" ").let { parts ->
@@ -76,10 +82,10 @@ fun InvestigadoresScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { onInvestigadorClick(inv.nombre) },
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = Blanco),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                    border = BorderStroke(1.dp, BordeTarjeta)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -89,10 +95,10 @@ fun InvestigadoresScreen(
                             Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         }
                         Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                            Text(inv.especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
-                            Text(inv.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1F1A24))
+                            Text(inv.especialidad.uppercase(), fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                            Text(inv.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextoOscuro)
                         }
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
                     }
                 }
             }

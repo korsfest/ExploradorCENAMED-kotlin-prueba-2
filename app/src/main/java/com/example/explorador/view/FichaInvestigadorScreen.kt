@@ -17,10 +17,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.explorador.ui.theme.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,17 +43,17 @@ fun FichaInvestigadorScreen(
     val esGestion = lineaTexto.contains("Gestión", ignoreCase = true)
 
     val colorPrincipal = when {
-        esConstruccion -> Color(0xFFE91E63)
-        esBioproductos -> Color(0xFF4CAF50)
-        esGestion -> Color(0xFFFF9800)
-        else -> Color(0xFF2563EB)
+        esConstruccion -> RosaLinea
+        esBioproductos -> VerdeLinea
+        esGestion -> NaranjaLinea
+        else -> CelesteLinea
     }
 
     val colorFondoLigero = when {
-        esConstruccion -> Color(0xFFFCE4EC)
-        esBioproductos -> Color(0xFFE8F5E9)
-        esGestion -> Color(0xFFFFF3E0)
-        else -> Color(0xFFE0E7FF)
+        esConstruccion -> RosaLineaFondo
+        esBioproductos -> VerdeLineaFondo
+        esGestion -> NaranjaLineaFondo
+        else -> CelesteLineaFondo
     }
 
     val iniciales = nombreInvestigador.split(" ").let { parts ->
@@ -74,17 +74,17 @@ fun FichaInvestigadorScreen(
                 actions = {
                     IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Transparente)
             )
         }
 
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = Blanco),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                border = BorderStroke(1.dp, BordeTarjeta)
             ) {
                 Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -94,11 +94,8 @@ fun FichaInvestigadorScreen(
                         Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     }
                     Column(modifier = Modifier.padding(start = 16.dp)) {
-                        Text(inv?.especialidad ?: "Investigador CENAMAD", fontSize = 12.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                        Text((inv?.especialidad ?: "Investigador CENAMAD").uppercase(), fontSize = 11.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         Text(nombreInvestigador, fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 2.dp))
-                        if (!inv?.correo.isNullOrBlank()) {
-                            Text(inv?.correo ?: "", fontSize = 12.sp, color = Color.Gray)
-                        }
                     }
                 }
             }
@@ -106,31 +103,32 @@ fun FichaInvestigadorScreen(
 
         item {
             Text(
-                text = "Línea de investigación: ${inv?.lineaNombre ?: "CENAMAD"}",
+                text = inv?.bio?.ifEmpty { "Línea de investigación: ${inv.lineaNombre}" } ?: "Investigador asociado a CENAMAD.",
                 fontSize = 14.sp,
-                color = Color.DarkGray,
-                modifier = Modifier.padding(horizontal = 4.dp)
+                color = GrisOscuro,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                lineHeight = 20.sp
             )
         }
 
         if (proyectoRelacionado != null) {
             item {
-                Text("Proyecto relacionado", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Proyecto relacionado", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { onProyectoClick(proyectoRelacionado.titulo) },
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = Blanco),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                    border = BorderStroke(1.dp, BordeTarjeta)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.size(40.dp).background(colorFondoLigero, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Build, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(20.dp))
                         }
                         Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                            Text("${proyectoRelacionado.anio} · ${proyectoRelacionado.estado}", fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                            Text("${proyectoRelacionado.anio} · ${proyectoRelacionado.estado}".uppercase(), fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                             Text(proyectoRelacionado.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
                     }
                 }
             }
@@ -138,9 +136,9 @@ fun FichaInvestigadorScreen(
 
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 32.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Icon(Icons.Outlined.Info, contentDescription = null, tint = GrisTexto, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Datos conectados en vivo con Xano API", fontSize = 12.sp, color = Color.Gray)
+                Text("Modelo académico · No son perfiles oficiales", fontSize = 12.sp, color = GrisTexto)
             }
         }
     }

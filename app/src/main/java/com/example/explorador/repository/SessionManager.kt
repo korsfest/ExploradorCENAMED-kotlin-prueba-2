@@ -1,40 +1,76 @@
 package com.example.explorador.repository
 
 import android.content.Context
+import android.content.SharedPreferences
 
-class SessionManager(context: Context) {
-    private val prefs = context.getSharedPreferences("cenamad_auth_prefs", Context.MODE_PRIVATE)
+class SessionManager(context: Context? = null) {
+    private val prefs: SharedPreferences? =
+        context?.getSharedPreferences("cenamad_auth_prefs", Context.MODE_PRIVATE) ?: sharedPrefs
 
-    // Guarda un nuevo usuario registrado en la memoria persistente del teléfono
-    fun registrarUsuario(nombre: String, email: String, password: String): Boolean {
-        val emailNormalizado = email.trim().lowercase()
-        if (prefs.contains("pass_$emailNormalizado")) {
-            return false // El correo ya está registrado
+    private val memoryStore = mutableMapOf<String, String>()
+
+    companion object {
+        private var sharedPrefs: SharedPreferences? = null
+
+        fun init(context: Context) {
+            sharedPrefs = context.applicationContext.getSharedPreferences("cenamad_auth_prefs", Context.MODE_PRIVATE)
         }
-        prefs.edit()
-            .putString("name_$emailNormalizado", nombre.trim())
-            .putString("pass_$emailNormalizado", password)
-            .apply()
-        return true
     }
 
-    // Valida las credenciales contra los usuarios persistidos localmente
+    fun registrarUsuario(nombre: String, email: String, password: String): Boolean {
+        val emailNormalizado = email.trim().lowercase()
+        val p = prefs
+        if (p != null) {
+            if (p.contains("pass_$emailNormalizado")) {
+                return false
+            }
+            p.edit()
+                .putString("name_$emailNormalizado", nombre.trim())
+                .putString("pass_$emailNormalizado", password)
+                .apply()
+            return true
+        } else {
+            if (memoryStore.containsKey("pass_$emailNormalizado")) {
+                return false
+            }
+            memoryStore["name_$emailNormalizado"] = nombre.trim()
+            memoryStore["pass_$emailNormalizado"] = password
+            return true
+        }
+    }
+
     fun validarCredenciales(email: String, password: String): Boolean {
         val emailNormalizado = email.trim().lowercase()
-        val passwordGuardada = prefs.getString("pass_$emailNormalizado", null)
+        val passwordGuardada = prefs?.getString("pass_$emailNormalizado", null)
+            ?: memoryStore["pass_$emailNormalizado"]
         return passwordGuardada != null && passwordGuardada == password
     }
 
-    // Guarda la sesión activa para que no se cierre al salir de la app
     fun guardarSesionActiva(email: String) {
-        prefs.edit().putString("sesion_activa", email.trim().lowercase()).apply()
+        val emailNormalizado = email.trim().lowercase()
+        if (prefs != null) {
+            prefs.edit().putString("sesion_activa", emailNormalizado).apply()
+        } else {
+            memoryStore["sesion_activa"] = emailNormalizado
+        }
     }
 
     fun obtenerSesionActiva(): String? {
-        return prefs.getString("sesion_activa", null)
+        return prefs?.getString("sesion_activa", null) ?: memoryStore["sesion_activa"]
+    }
+
+    fun obtenerNombreUsuario(email: String): String {
+        val emailNormalizado = email.trim().lowercase()
+        return prefs?.getString("name_$emailNormalizado", "")
+            ?: memoryStore["name_$emailNormalizado"]
+            ?: ""
     }
 
     fun cerrarSesion() {
-        prefs.edit().remove("sesion_activa").apply()
+        if (prefs != null) {
+            prefs.edit().remove("sesion_activa").apply()
+        } else {
+            memoryStore.remove("sesion_activa")
+        }
     }
 }

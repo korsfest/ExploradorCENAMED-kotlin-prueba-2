@@ -9,51 +9,82 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.explorador.model.CurrentWeather
+import com.example.explorador.ui.theme.*
 
 @Composable
 fun InfoScreen(
     userEmail: String = "",
+    climaSede: CurrentWeather? = null,
     onCerrarSesion: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
             text = "Información de Contacto",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1F1A24)
+            color = TextoOscuro
         )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE1F5FE)),
+            colors = CardDefaults.cardColors(containerColor = CelesteLineaFondo),
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
                 text = "Si tienes dudas, búscanos en nuestra sucursal. ¡Nuestro equipo estará encantado de ayudarte con tus proyectos de investigación!",
-                modifier = Modifier.padding(16.dp),
-                fontSize = 15.sp,
-                color = Color(0xFF0277BD)
+                modifier = Modifier.padding(14.dp),
+                fontSize = 14.sp,
+                color = AzulInfoTexto
             )
+        }
+
+        if (climaSede != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = VerdeLineaFondo),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Cloud,
+                        contentDescription = "Clima en Sede",
+                        tint = VerdeLinea,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Clima en Sede Santiago: ${climaSede.temperature} °C · Viento ${climaSede.windspeed} km/h",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = VerdeEstadoTexto
+                    )
+                }
+            }
         }
 
         Text(
             text = "Nuestra Ubicación",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1F1A24)
+            color = TextoOscuro
         )
 
         Card(
@@ -104,7 +135,7 @@ fun InfoScreen(
             Text(
                 text = "Sesión activa: $userEmail",
                 fontSize = 13.sp,
-                color = Color.Gray
+                color = GrisTexto
             )
         }
 
@@ -113,20 +144,20 @@ fun InfoScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
+            colors = ButtonDefaults.buttonColors(containerColor = RojoError),
             shape = RoundedCornerShape(12.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = "Cerrar Sesión",
-                tint = Color.White
+                tint = Blanco
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Cerrar Sesión",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Blanco
             )
         }
     }

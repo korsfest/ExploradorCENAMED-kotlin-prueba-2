@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.explorador.ui.theme.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,35 +42,37 @@ fun FichaPublicacionScreen(
     val pub = publicaciones.find { it.titulo.equals(nombrePublicacion, ignoreCase = true) }
     val autorNombre = pub?.autor ?: "Dra. Ana Silva"
     val inv = investigadores.find { it.nombre.equals(autorNombre, ignoreCase = true) }
-    val proyectoRelacionado = proyectos.find { it.investigadorNombre.equals(autorNombre, ignoreCase = true) } ?: proyectos.firstOrNull()
+    val proyectoRelacionado = proyectos.find { it.titulo.equals(pub?.proyectoTitulo ?: "", ignoreCase = true) }
+        ?: proyectos.find { it.investigadorNombre.equals(autorNombre, ignoreCase = true) }
+        ?: proyectos.firstOrNull()
 
-    val lineaTexto = inv?.lineaNombre ?: ""
+    val lineaTexto = pub?.lineaNombre ?: inv?.lineaNombre ?: ""
     val esConstruccion = lineaTexto.contains("Construcción", ignoreCase = true)
     val esBioproductos = lineaTexto.contains("Bioproductos", ignoreCase = true)
     val esGestion = lineaTexto.contains("Gestión", ignoreCase = true)
 
     val colorPrincipal = when {
-        esConstruccion -> Color(0xFFE91E63)
-        esBioproductos -> Color(0xFF4CAF50)
-        esGestion -> Color(0xFFFF9800)
-        else -> Color(0xFF8B5CF6)
+        esConstruccion -> RosaLinea
+        esBioproductos -> VerdeLinea
+        esGestion -> NaranjaLinea
+        else -> CelesteLinea
     }
 
     val colorFondoLigero = when {
-        esConstruccion -> Color(0xFFFCE4EC)
-        esBioproductos -> Color(0xFFE8F5E9)
-        esGestion -> Color(0xFFFFF3E0)
-        else -> Color(0xFFF3E8FF)
+        esConstruccion -> RosaLineaFondo
+        esBioproductos -> VerdeLineaFondo
+        esGestion -> NaranjaLineaFondo
+        else -> CelesteLineaFondo
     }
 
     val titulo = pub?.titulo ?: nombrePublicacion
     val anio = pub?.anio ?: "2025"
-    val tipo = if (titulo.contains("Guía", ignoreCase = true) || titulo.contains("Modelos", ignoreCase = true)) "POLICY BRIEF" else "ARTÍCULO CIENTÍFICO"
+    val tipo = (pub?.tipo ?: if (titulo.contains("Guía", ignoreCase = true)) "Policy Brief" else "Artículo científico").uppercase()
 
     val autorIniciales = autorNombre.split(" ").let { parts ->
         if (parts.size >= 3) "${parts[1].first()}${parts[2].first()}" else autorNombre.take(2).uppercase()
     }
-    val autorEsp = inv?.especialidad ?: "Investigador CENAMAD"
+    val autorEsp = (inv?.especialidad ?: "Investigador CENAMAD").uppercase()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +88,7 @@ fun FichaPublicacionScreen(
                 actions = {
                     IconButton(onClick = { }) { Icon(Icons.Default.Search, contentDescription = "Buscar") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Transparente)
             )
         }
 
@@ -102,7 +105,7 @@ fun FichaPublicacionScreen(
                     }
                     Text(
                         titulo,
-                        color = Color(0xFF1F1A24),
+                        color = TextoOscuro,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 12.dp),
@@ -111,22 +114,23 @@ fun FichaPublicacionScreen(
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                         Icon(Icons.Default.Book, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(inv?.lineaNombre ?: "Investigación CENAMAD", color = Color.DarkGray, fontSize = 14.sp)
+                        Text(pub?.contexto?.ifEmpty { lineaTexto } ?: "Diseño de sistemas modulares en madera", color = GrisOscuro, fontSize = 14.sp)
                     }
                 }
             }
         }
 
         item {
-            Text("Resumen", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F1A24))
+            Text("Resumen", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextoOscuro)
             Text(
-                "Documento científico publicado por $autorNombre en el marco de las líneas de investigación de CENAMAD ($anio).",
+                pub?.resumen?.ifEmpty { "Documento científico publicado por $autorNombre en el marco de las líneas de investigación de CENAMAD ($anio)." }
+                    ?: "Criterios prácticos para diseñar módulos funcionales y montables.",
                 fontSize = 14.sp,
-                color = Color.DarkGray,
+                color = GrisOscuro,
                 modifier = Modifier.padding(top = 8.dp),
                 lineHeight = 20.sp
             )
-            Text("Registro sincronizado desde API REST CENAMAD.", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+            Text("El resumen es una síntesis académica ilustrativa.", fontSize = 12.sp, color = GrisTexto, modifier = Modifier.padding(top = 8.dp))
         }
 
         item {
@@ -149,22 +153,22 @@ fun FichaPublicacionScreen(
 
         if (proyectoRelacionado != null) {
             item {
-                Text("Proyecto relacionado", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Proyecto relacionado", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { onProyectoClick(proyectoRelacionado.titulo) },
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = Blanco),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+                    border = BorderStroke(1.dp, BordeTarjeta)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.size(40.dp).background(colorFondoLigero, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Book, contentDescription = null, tint = colorPrincipal, modifier = Modifier.size(20.dp))
                         }
                         Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                            Text("${proyectoRelacionado.anio} · ${proyectoRelacionado.estado}", fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                            Text("${proyectoRelacionado.anio} · ${proyectoRelacionado.estado}".uppercase(), fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                             Text(proyectoRelacionado.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
                     }
                 }
             }
@@ -187,9 +191,9 @@ fun FichaPublicacionScreen(
 
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 32.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Icon(Icons.Outlined.Info, contentDescription = null, tint = GrisTexto, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("CENAMAD · Datos en vivo desde Xano API", fontSize = 12.sp, color = Color.Gray)
+                Text("Modelo académico · No son documentos oficiales", fontSize = 12.sp, color = GrisTexto)
             }
         }
     }
@@ -199,10 +203,10 @@ fun FichaPublicacionScreen(
 private fun AutorCardPublicacion(iniciales: String, especialidad: String, nombre: String, colorPrincipal: Color, colorFondo: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Blanco),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFE5E5E5))
+        border = BorderStroke(1.dp, BordeTarjeta)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -215,7 +219,7 @@ private fun AutorCardPublicacion(iniciales: String, especialidad: String, nombre
                 Text(especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
         }
     }
 }

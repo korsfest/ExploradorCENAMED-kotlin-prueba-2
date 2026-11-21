@@ -12,11 +12,10 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.explorador.model.LineaInvestigacion
-import com.example.explorador.repository.SessionManager
+import com.example.explorador.ui.theme.Blanco
+import com.example.explorador.ui.theme.ExploradorTheme
 import com.example.explorador.view.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
@@ -24,20 +23,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme(
-                colorScheme = lightColorScheme(
-                    primary = Color(0xFF2563EB),
-                    background = Color(0xFFF8F9FA)
-                )
-            ) {
-                val context = LocalContext.current
-                val sessionManager = remember { SessionManager(context) }
-                val sesionGuardada = remember { sessionManager.obtenerSesionActiva() }
-
-                // Instancia única del ViewModel compartido para toda la app (MVVM)
+            ExploradorTheme {
                 val exploradorViewModel: ExploradorViewModel = viewModel()
 
-                var pestañaActual by remember { mutableStateOf(if (sesionGuardada != null) "explorar" else "login") }
+                val sesionIniciada by exploradorViewModel.sesionIniciada.collectAsState()
+                val userEmail by exploradorViewModel.usuarioEmail.collectAsState()
+                val userName by exploradorViewModel.usuarioNombre.collectAsState()
+                val climaSede by exploradorViewModel.climaSede.collectAsState()
+
+                var pestañaActual by remember { mutableStateOf("explorar") }
                 var lineaSeleccionada by remember { mutableStateOf<LineaInvestigacion?>(null) }
                 var viendoInvestigadores by remember { mutableStateOf(false) }
                 var viendoProyectos by remember { mutableStateOf(false) }
@@ -47,20 +41,14 @@ class MainActivity : ComponentActivity() {
                 var proyectoSeleccionado by remember { mutableStateOf("") }
                 var viendoFichaPublicacion by remember { mutableStateOf(false) }
                 var publicacionSeleccionada by remember { mutableStateOf("") }
-                var userEmail by remember { mutableStateOf(sesionGuardada ?: "") }
 
-                if (pestañaActual == "login") {
-                    LoginScreen(
-                        onLoginSuccess = { emailIngresado ->
-                            userEmail = emailIngresado
-                            pestañaActual = "explorar"
-                        }
-                    )
+                if (!sesionIniciada) {
+                    LoginScreen(viewModel = exploradorViewModel)
                 } else {
                     Scaffold(
                         bottomBar = {
                             if (lineaSeleccionada == null) {
-                                NavigationBar(containerColor = Color.White) {
+                                NavigationBar(containerColor = Blanco) {
                                     NavigationBarItem(
                                         icon = { Icon(Icons.Outlined.Explore, contentDescription = "Explorar") },
                                         label = { Text("Explorar") },
@@ -101,17 +89,17 @@ class MainActivity : ComponentActivity() {
                                     "explorar" -> {
                                         ExplorarScreen(
                                             viewModel = exploradorViewModel,
-                                            email = userEmail,
+                                            nombreUsuario = userName.ifBlank { userEmail },
                                             onLineaClick = { linea -> lineaSeleccionada = linea }
                                         )
                                     }
                                     "info" -> {
                                         InfoScreen(
                                             userEmail = userEmail,
+                                            climaSede = climaSede,
                                             onCerrarSesion = {
-                                                sessionManager.cerrarSesion()
-                                                userEmail = ""
-                                                pestañaActual = "login"
+                                                exploradorViewModel.cerrarSesion()
+                                                pestañaActual = "explorar"
                                             }
                                         )
                                     }
@@ -186,6 +174,7 @@ class MainActivity : ComponentActivity() {
                                     viendoInvestigadores -> {
                                         InvestigadoresScreen(
                                             viewModel = exploradorViewModel,
+                                            lineaFiltro = lineaSeleccionada?.titulo,
                                             onVolver = { viendoInvestigadores = false },
                                             onInvestigadorClick = { nombre -> investigadorSeleccionado = nombre }
                                         )
@@ -193,6 +182,7 @@ class MainActivity : ComponentActivity() {
                                     viendoProyectos -> {
                                         ProyectosScreen(
                                             viewModel = exploradorViewModel,
+                                            lineaFiltro = lineaSeleccionada?.titulo,
                                             onVolver = { viendoProyectos = false },
                                             onVerProyecto = { proj ->
                                                 proyectoSeleccionado = proj
@@ -203,6 +193,7 @@ class MainActivity : ComponentActivity() {
                                     viendoPublicaciones -> {
                                         PublicacionesScreen(
                                             viewModel = exploradorViewModel,
+                                            lineaFiltro = lineaSeleccionada?.titulo,
                                             onVolver = { viendoPublicaciones = false },
                                             onVerPublicacion = { pub ->
                                                 publicacionSeleccionada = pub

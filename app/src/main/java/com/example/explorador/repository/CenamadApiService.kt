@@ -6,31 +6,40 @@ import retrofit2.http.*
 
 interface CenamadApiService {
 
-    // 1. GET todas las líneas
     @GET("lineas")
     suspend fun getLineas(): List<LineaInvestigacion>
 
-    // 2. GET todos los investigadores
     @GET("investigadores")
     suspend fun getInvestigadores(): List<Investigador>
 
-    // 3. GET detalle de un investigador por ID
     @GET("investigadores/{id}")
     suspend fun getInvestigadorDetalle(@Path("id") id: Int): Investigador
 
-    // 4. GET todos los proyectos
     @GET("proyectos")
     suspend fun getProyectos(): List<Proyecto>
 
-    // 5. POST crear un nuevo proyecto
     @POST("proyectos")
     suspend fun crearProyecto(@Body nuevoProyecto: ProyectoRequest): Proyecto
 
-    // 6. DELETE eliminar un proyecto por ID
+    @PUT("proyectos/{id}")
+    suspend fun actualizarProyecto(
+        @Path("id") id: Int,
+        @Body proyectoActualizado: ProyectoRequest
+    ): Proyecto
+
     @DELETE("proyectos/{id}")
     suspend fun eliminarProyecto(@Path("id") id: Int): Response<Unit>
 
-    // 7. GET todas las publicaciones
     @GET("publicaciones")
     suspend fun getPublicaciones(): List<Publicacion>
+}
+
+interface ExternalApiService {
+
+    @GET("forecast")
+    suspend fun obtenerClimaSede(
+        @Query("latitude") latitude: Double = -33.443018,
+        @Query("longitude") longitude: Double = -70.653870,
+        @Query("current_weather") currentWeather: Boolean = true
+    ): WeatherResponse
 }

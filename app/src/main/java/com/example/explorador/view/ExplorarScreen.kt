@@ -23,13 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.explorador.model.LineaInvestigacion
+import com.example.explorador.ui.theme.*
 import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExplorarScreen(
     viewModel: ExploradorViewModel,
-    email: String,
+    nombreUsuario: String,
     onLineaClick: (LineaInvestigacion) -> Unit
 ) {
     val lineas by viewModel.lineas.collectAsState()
@@ -37,7 +38,7 @@ fun ExplorarScreen(
     val error by viewModel.mensajeError.collectAsState()
 
     val bannerGradient = Brush.linearGradient(
-        colors = listOf(Color(0xFF2563EB), Color(0xFF8B5CF6), Color(0xFFEC4899))
+        colors = listOf(AzulPrimario, MoradoBanner, RosaBanner)
     )
 
     LazyColumn(
@@ -52,11 +53,11 @@ fun ExplorarScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("CENAMAD Explorador", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1F1A24))
-                    if (email.isNotEmpty()) {
-                        Text("¡Bienvenido, $email!", fontSize = 14.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
+                    Text("CENAMAD Explorador", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
+                    if (nombreUsuario.isNotEmpty()) {
+                        Text("¡Bienvenido, $nombreUsuario!", fontSize = 14.sp, color = AzulPrimario, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
                     }
-                    Text("Explorador de conocimiento", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
+                    Text("Explorador de conocimiento", fontSize = 14.sp, color = GrisTexto, modifier = Modifier.padding(top = 2.dp))
                 }
             }
         }
@@ -69,34 +70,34 @@ fun ExplorarScreen(
             ) {
                 Box(modifier = Modifier.background(bannerGradient)) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Text("CIENCIA, TECNOLOGÍA Y MADERA", color = Color(0xFFE0E7FF), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("CIENCIA, TECNOLOGÍA Y MADERA", color = AzulFondoClaro, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Text(
                             "Conocimiento que construye futuro.",
-                            color = Color.White,
+                            color = Blanco,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp),
                             lineHeight = 30.sp
                         )
-                        Text("Conecta líneas, personas y hallazgos de la industria de la madera.", color = Color(0xFFF3E8FF), fontSize = 14.sp)
+                        Text("Conecta líneas, personas y hallazgos de la industria de la madera.", color = MoradoFondoClaro, fontSize = 14.sp)
                     }
                 }
             }
         }
 
         item {
-            Text("Líneas de investigación", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1F1A24), modifier = Modifier.padding(top = 8.dp))
+            Text("Líneas de investigación", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextoOscuro, modifier = Modifier.padding(top = 8.dp))
         }
 
         if (cargando && lineas.isEmpty()) {
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF2563EB))
+                    CircularProgressIndicator(color = AzulPrimario)
                 }
             }
         } else if (error != null && lineas.isEmpty()) {
             item {
-                Text(text = error ?: "Error al conectar con el servidor", color = Color.Red, fontSize = 14.sp)
+                Text(text = error ?: "Error al conectar con el servidor", color = RojoError, fontSize = 14.sp)
             }
         } else {
             items(lineas.size) { index ->
@@ -111,16 +112,16 @@ fun ExplorarScreen(
                         else -> Icons.Default.Factory
                     },
                     colorIcono = when (index % 4) {
-                        0 -> Color(0xFFE91E63)
-                        1 -> Color(0xFF4CAF50)
-                        2 -> Color(0xFFFF9800)
-                        else -> Color(0xFF03A9F4)
+                        0 -> RosaLinea
+                        1 -> VerdeLinea
+                        2 -> NaranjaLinea
+                        else -> CelesteLinea
                     },
                     fondoIcono = when (index % 4) {
-                        0 -> Color(0xFFFCE4EC)
-                        1 -> Color(0xFFE8F5E9)
-                        2 -> Color(0xFFFFF3E0)
-                        else -> Color(0xFFE1F5FE)
+                        0 -> RosaLineaFondo
+                        1 -> VerdeLineaFondo
+                        2 -> NaranjaLineaFondo
+                        else -> CelesteLineaFondo
                     },
                     onClick = { onLineaClick(linea) }
                 )
@@ -133,10 +134,10 @@ fun ExplorarScreen(
 fun LineaInvestigacionCard(titulo: String, detalle: String, icono: ImageVector, colorIcono: Color, fondoIcono: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Blanco),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF3F4F6))
+        border = BorderStroke(1.dp, BordeSutil)
     ) {
         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -146,10 +147,10 @@ fun LineaInvestigacionCard(titulo: String, detalle: String, icono: ImageVector, 
                 Icon(icono, contentDescription = null, tint = colorIcono)
             }
             Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1F1A24))
-                Text(detalle, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
+                Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextoOscuro)
+                Text(detalle, fontSize = 13.sp, color = GrisTexto, modifier = Modifier.padding(top = 4.dp))
             }
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = GrisClaro)
         }
     }
 }
