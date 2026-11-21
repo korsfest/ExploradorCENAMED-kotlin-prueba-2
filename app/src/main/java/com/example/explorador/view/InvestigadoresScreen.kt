@@ -1,4 +1,4 @@
-package com.example.explorador.screens
+package com.example.explorador.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -13,23 +13,23 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.explorador.viewmodel.ExploradorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvestigadoresScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> Unit) {
-    val investigadores = listOf(
-        "Dra. Ana Silva", "Dr. Carlos Ruiz",
-        "Dr. Luis Morales", "Dra. Sofía Valdés", "Dr. Mateo Rojas",
-        "Dr. Gabriel Fuentes", "Dra. Marcela Parra",
-        "Dr. Ignacio Becker", "Dra. Valentina Soto"
-    )
+fun InvestigadoresScreen(
+    viewModel: ExploradorViewModel,
+    onVolver: () -> Unit,
+    onInvestigadorClick: (String) -> Unit
+) {
+    val investigadores by viewModel.investigadores.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
         TopAppBar(
@@ -47,10 +47,10 @@ fun InvestigadoresScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> 
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(investigadores) { nombre ->
-                val esConstruccion = nombre.contains("Ana Silva") || nombre.contains("Carlos Ruiz")
-                val esBioproductos = nombre.contains("Luis Morales") || nombre.contains("Sofía Valdés") || nombre.contains("Mateo Rojas")
-                val esGestion = nombre.contains("Gabriel Fuentes") || nombre.contains("Marcela Parra")
+            items(investigadores) { inv ->
+                val esConstruccion = inv.lineaNombre.contains("Construcción", ignoreCase = true)
+                val esBioproductos = inv.lineaNombre.contains("Bioproductos", ignoreCase = true)
+                val esGestion = inv.lineaNombre.contains("Gestión", ignoreCase = true)
 
                 val colorPrincipal = when {
                     esConstruccion -> Color(0xFFE91E63)
@@ -66,24 +66,16 @@ fun InvestigadoresScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> 
                     else -> Color(0xFFE1F5FE)
                 }
 
-                val iniciales = nombre.split(" ").let { parts ->
-                    if (parts.size >= 3) "${parts[1].first()}${parts[2].first()}" else "XX"
-                }
-
-                val especialidad = when {
-                    nombre.contains("Ana Silva") -> "Ingeniería Estructural"
-                    nombre.contains("Carlos Ruiz") -> "Arquitectura Sustentable"
-                    nombre.contains("Luis Morales") -> "Química de Materiales"
-                    nombre.contains("Sofía Valdés") -> "Nanotecnología de la Madera"
-                    nombre.contains("Mateo Rojas") -> "Gestión Ambiental"
-                    nombre.contains("Gabriel Fuentes") -> "Economía Forestal"
-                    nombre.contains("Marcela Parra") -> "Sostenibilidad Territorial"
-                    nombre.contains("Ignacio Becker") -> "Automatización Industrial"
-                    else -> "Manufactura Avanzada"
+                val iniciales = inv.nombre.split(" ").let { parts ->
+                    when {
+                        parts.size >= 3 -> "${parts[1].first()}${parts[2].first()}"
+                        parts.size == 2 -> "${parts[0].first()}${parts[1].first()}"
+                        else -> inv.nombre.take(2).uppercase()
+                    }
                 }
 
                 Card(
-                    modifier = Modifier.fillMaxWidth().clickable { onInvestigadorClick(nombre) },
+                    modifier = Modifier.fillMaxWidth().clickable { onInvestigadorClick(inv.nombre) },
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     shape = RoundedCornerShape(16.dp),
@@ -97,8 +89,8 @@ fun InvestigadoresScreen(onVolver: () -> Unit, onInvestigadorClick: (String) -> 
                             Text(iniciales, color = colorPrincipal, fontWeight = FontWeight.Bold)
                         }
                         Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                            Text(especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
-                            Text(nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1F1A24))
+                            Text(inv.especialidad, fontSize = 10.sp, color = colorPrincipal, fontWeight = FontWeight.Bold)
+                            Text(inv.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1F1A24))
                         }
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
                     }

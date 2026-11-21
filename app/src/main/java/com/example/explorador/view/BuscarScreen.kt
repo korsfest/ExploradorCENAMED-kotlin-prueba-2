@@ -1,4 +1,4 @@
-package com.example.explorador.screens
+package com.example.explorador.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.explorador.viewmodel.ExploradorViewModel
 
 data class SearchItem(
     val tipo: String,
@@ -36,6 +37,7 @@ data class SearchItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuscarScreen(
+    viewModel: ExploradorViewModel,
     onInvestigadorClick: (String) -> Unit,
     onProyectoClick: (String) -> Unit,
     onPublicacionClick: (String) -> Unit
@@ -45,54 +47,35 @@ fun BuscarScreen(
     var selectedFilter by remember { mutableStateOf("Todos") }
     var expandedDropdown by remember { mutableStateOf(false) }
 
-    val lineas = listOf(
-        "Todas las líneas",
-        "Construcción Sustentable en Madera",
-        "Bioproductos y Biomateriales",
-        "Gestión y Economía Forestal",
-        "Innovación en Procesos Industriales"
-    )
+    val lineasApi by viewModel.lineas.collectAsState()
+    val investigadores by viewModel.investigadores.collectAsState()
+    val proyectos by viewModel.proyectos.collectAsState()
+    val publicaciones by viewModel.publicaciones.collectAsState()
 
+    val lineas = listOf("Todas las líneas") + lineasApi.map { it.titulo }
     val filters = listOf("Todos", "Investigadores", "Proyectos", "Publicaciones")
 
-    val allItems = listOf(
-        SearchItem("INVESTIGADOR", "Dra. Ana Silva", "Ingeniería Estructural", "Construcción Sustentable en Madera", "AS"),
-        SearchItem("INVESTIGADOR", "Dr. Carlos Ruiz", "Arquitectura Sustentable", "Construcción Sustentable en Madera", "CR"),
-        SearchItem("PROYECTO", "Prototipo de vivienda modular", "2025 · En ejecución", "Construcción Sustentable en Madera"),
-        SearchItem("PROYECTO", "Análisis sísmico de uniones", "2024 · Finalizado", "Construcción Sustentable en Madera"),
-        SearchItem("PUBLICACIÓN", "Guía de diseño estructural", "Policy Brief · 2025", "Construcción Sustentable en Madera"),
-        SearchItem("PUBLICACIÓN", "Resistencia al fuego en CLT", "Artículo científico · 2024", "Construcción Sustentable en Madera"),
-
-        SearchItem("INVESTIGADOR", "Dr. Luis Morales", "Química de Materiales", "Bioproductos y Biomateriales", "LM"),
-        SearchItem("INVESTIGADOR", "Dra. Sofía Valdés", "Nanotecnología de la Madera", "Bioproductos y Biomateriales", "SV"),
-        SearchItem("INVESTIGADOR", "Dr. Mateo Rojas", "Gestión Ambiental", "Bioproductos y Biomateriales", "MR"),
-        SearchItem("PROYECTO", "Biopolímeros forestales avanzados", "2025 · En ejecución", "Bioproductos y Biomateriales"),
-        SearchItem("PROYECTO", "Nanocompuestos estructurales", "2025 · En ejecución", "Bioproductos y Biomateriales"),
-        SearchItem("PROYECTO", "Evaluación de Ciclo de Vida en CLT", "2024 · Finalizado", "Bioproductos y Biomateriales"),
-        SearchItem("PUBLICACIÓN", "Caracterización de biopolímeros", "Artículo científico · 2025", "Bioproductos y Biomateriales"),
-        SearchItem("PUBLICACIÓN", "Nanocompuestos de celulosa", "Artículo científico · 2025", "Bioproductos y Biomateriales"),
-        SearchItem("PUBLICACIÓN", "Impacto ambiental del CLT", "Artículo científico · 2024", "Bioproductos y Biomateriales"),
-
-        SearchItem("INVESTIGADOR", "Dr. Gabriel Fuentes", "Economía Forestal", "Gestión y Economía Forestal", "GF"),
-        SearchItem("INVESTIGADOR", "Dra. Marcela Parra", "Sostenibilidad Territorial", "Gestión y Economía Forestal", "MP"),
-        SearchItem("PROYECTO", "Mercados de Exportación Maderera", "2025 · En ejecución", "Gestión y Economía Forestal"),
-        SearchItem("PROYECTO", "Desarrollo Local y Territorio", "2025 · En ejecución", "Gestión y Economía Forestal"),
-        SearchItem("PUBLICACIÓN", "Tendencias del mercado maderero", "Policy Brief · 2025", "Gestión y Economía Forestal"),
-        SearchItem("PUBLICACIÓN", "Desarrollo Local Sostenible", "Policy Brief · 2025", "Gestión y Economía Forestal"),
-
-        SearchItem("INVESTIGADOR", "Dr. Ignacio Becker", "Automatización Industrial", "Innovación en Procesos Industriales", "IB"),
-        SearchItem("INVESTIGADOR", "Dra. Valentina Soto", "Manufactura Avanzada", "Innovación en Procesos Industriales", "VS"),
-        SearchItem("PROYECTO", "Robótica en Aserraderos", "2025 · En ejecución", "Innovación en Procesos Industriales"),
-        SearchItem("PROYECTO", "Celdas Robotizadas de Producción", "2025 · En ejecución", "Innovación en Procesos Industriales"),
-        SearchItem("PUBLICACIÓN", "Automatización en aserraderos", "Policy Brief · 2025", "Innovación en Procesos Industriales"),
-        SearchItem("PUBLICACIÓN", "Manufactura y Robótica Avanzada", "Policy Brief · 2025", "Innovación en Procesos Industriales")
-    )
+    val allItems = remember(investigadores, proyectos, publicaciones) {
+        val listaInv = investigadores.map { inv ->
+            val iniciales = inv.nombre.split(" ").let { parts ->
+                if (parts.size >= 3) "${parts[1].first()}${parts[2].first()}" else inv.nombre.take(2).uppercase()
+            }
+            SearchItem("INVESTIGADOR", inv.nombre, inv.especialidad, inv.lineaNombre, iniciales)
+        }
+        val listaProj = proyectos.map { proj ->
+            SearchItem("PROYECTO", proj.titulo, "${proj.anio} · ${proj.estado}", proj.investigadorNombre)
+        }
+        val listaPub = publicaciones.map { pub ->
+            SearchItem("PUBLICACIÓN", pub.titulo, "${pub.autor} · ${pub.anio}", pub.autor)
+        }
+        listaInv + listaProj + listaPub
+    }
 
     val filteredItems = allItems.filter { item ->
         val matchesSearch = searchText.isBlank() ||
                 item.titulo.contains(searchText, ignoreCase = true) ||
                 item.subtitulo.contains(searchText, ignoreCase = true)
-        val matchesLinea = selectedLinea == "Todas las líneas" || item.linea == selectedLinea
+        val matchesLinea = selectedLinea == "Todas las líneas" || item.linea.equals(selectedLinea, ignoreCase = true)
         val matchesType = when (selectedFilter) {
             "Investigadores" -> item.tipo == "INVESTIGADOR"
             "Proyectos" -> item.tipo == "PROYECTO"
@@ -154,9 +137,7 @@ fun BuscarScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 filters.forEach { filter ->
@@ -187,7 +168,7 @@ fun BuscarScreen(
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("${filteredItems.size} resultados", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text("Por relevancia", fontSize = 14.sp, color = Color.Gray)
+                    Text("En vivo (API)", fontSize = 14.sp, color = Color.Gray)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }

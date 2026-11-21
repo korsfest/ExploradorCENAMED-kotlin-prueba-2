@@ -1,4 +1,4 @@
-package com.example.explorador.screens
+package com.example.explorador.view
 
 import android.util.Patterns
 import androidx.compose.foundation.layout.*

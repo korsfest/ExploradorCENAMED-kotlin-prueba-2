@@ -1,4 +1,4 @@
-package com.example.explorador.screens
+package com.example.explorador.view
 
 import android.view.View
 import android.view.ViewGroup
